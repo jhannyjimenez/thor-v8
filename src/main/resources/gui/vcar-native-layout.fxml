@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.*?>
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="479.0" prefWidth="360.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+  <children>
+    <MenuBar prefHeight="31.0" prefWidth="360.0" VBox.vgrow="NEVER">
+      <menus>
+        <Menu mnemonicParsing="false" text="File">
+          <items>
+            <MenuItem mnemonicParsing="false" text="New" />
+            <MenuItem mnemonicParsing="false" text="Open…" />
+            <Menu mnemonicParsing="false" text="Open Recent" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Close" />
+            <MenuItem mnemonicParsing="false" text="Save" />
+            <MenuItem mnemonicParsing="false" text="Save As…" />
+            <MenuItem mnemonicParsing="false" text="Revert" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Preferences…" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Quit" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Edit">
+          <items>
+            <MenuItem mnemonicParsing="false" text="Undo" />
+            <MenuItem mnemonicParsing="false" text="Redo" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Cut" />
+            <MenuItem mnemonicParsing="false" text="Copy" />
+            <MenuItem mnemonicParsing="false" text="Paste" />
+            <MenuItem mnemonicParsing="false" text="Delete" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Select All" />
+            <MenuItem mnemonicParsing="false" text="Unselect All" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+      <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="365.0" prefWidth="640.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+         <tabs>
+            <Tab text="Criticality Analysis">
+               <content>
+                  <AnchorPane>
+                     <children>
+                        <Button fx:id="cRunButton" layoutX="109.0" layoutY="333.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="140.0" text="Import and Run" />
+                        <Text layoutX="32.0" layoutY="25.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Calculation Method" />
+                        <ChoiceBox fx:id="cCalculationMethodChoiceBox" layoutX="20.0" layoutY="40.0" prefWidth="150.0" />
+                        <ChoiceBox fx:id="cRollUpRuleChoiceBox" layoutX="20.0" layoutY="120.0" prefWidth="150.0" />
+                        <Text layoutX="55.0" layoutY="105.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Roll Up Rule" />
+                        <TextField fx:id="cMaxMinutesTextField" layoutX="190.0" layoutY="40.0" prefHeight="26.0" prefWidth="150.0" promptText="Max # of Minutes" />
+                        <TextField fx:id="cThreadsTextField" layoutX="190.0" layoutY="120.0" prefHeight="26.0" prefWidth="150.0" promptText="# of Cores" />
+                        <ProgressBar fx:id="lProgressBar" layoutX="43.0" layoutY="275.0" prefHeight="29.0" prefWidth="273.0" progress="0.0" />
+                        <Text fx:id="lPossText" layoutX="36.0" layoutY="196.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Possibilities" textAlignment="CENTER" wrappingWidth="289.51806640625">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Text>
+                        <Text fx:id="lMinutesText" layoutX="35.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Minutes" textAlignment="CENTER" wrappingWidth="289.51806640625">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+         </tabs>
+      </TabPane>
+  </children>
+</VBox>
