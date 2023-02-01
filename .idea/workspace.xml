@@ -4,19 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1ea0a756-0080-4801-9821-4ef4c45cf6c6" name="Changes" comment="8.0 - Changed project gradle version to 8.0">
+    <list default="true" id="1ea0a756-0080-4801-9821-4ef4c45cf6c6" name="Changes" comment="8.0.1 - Added input error detection for attack analysis input">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/input_correcter/InputCorrecter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/input_correcter/InputCorrecter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/AttackAnalysis.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/AttackAnalysis.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/data_holders/NetworkAnalysisDataHolder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/data_holders/NetworkAnalysisDataHolder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/Input.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/Input.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/formats/StandardInput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/formats/StandardInput.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/Network.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/Network.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackChain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackChain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackPoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackPoint.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackTreeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackTreeBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/DecisionTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/DecisionTree.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/output/Output.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/output/Output.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -86,6 +77,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;TODO_SCOPE&quot;: &quot;All Places&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/JHANNY/Documents/Java/thor/src/main/java&quot;,
@@ -96,6 +88,7 @@
     &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
@@ -157,7 +150,9 @@
       <workItem from="1674774565767" duration="969000" />
       <workItem from="1675101657678" duration="12521000" />
       <workItem from="1675186153991" duration="6903000" />
-      <workItem from="1675278378524" duration="4134000" />
+      <workItem from="1675278378524" duration="6029000" />
+      <workItem from="1675287611898" duration="18000" />
+      <workItem from="1675287642570" duration="103000" />
     </task>
     <task id="LOCAL-00001" summary="8.0 - Changed project gradle version to 8.0">
       <created>1674666713164</created>
@@ -166,7 +161,14 @@
       <option name="project" value="LOCAL" />
       <updated>1674666713164</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="8.0.1 - Added input error detection for attack analysis input">
+      <created>1675282569121</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1675282569121</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -174,7 +176,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="8.0 - Changed project gradle version to 8.0" />
-    <option name="LAST_COMMIT_MESSAGE" value="8.0 - Changed project gradle version to 8.0" />
+    <MESSAGE value="8.0.1 - Added input error detection for attack analysis input" />
+    <option name="LAST_COMMIT_MESSAGE" value="8.0.1 - Added input error detection for attack analysis input" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

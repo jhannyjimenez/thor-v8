@@ -186,28 +186,18 @@ public class AttackTreeBuilder {
 
         ArrayList<DecisionNode> usedNodes = new ArrayList<>();
         ArrayList<DecisionLink> usedLinks = new ArrayList<>();
-        ArrayList<String> linksFilter = new ArrayList<>();
 
         for(DecisionLink link : links){
             if(INCLUDE_MATH_STOP || (!stopNodes.contains(link.childNode) && !stopNodes.contains(link.parentNode))){
-                String parentID = link.parentNode.decision != null ? String.valueOf(link.parentNode.decision.getId()) : "STOP";
-                String id = link.childNode.decision.getId() + ":" + parentID;
-                if(!linksFilter.contains(id)) {
-                    String childNodeLabel = !nodeIsLeaf(link.childNode) ? link.childNode.getNoIdLabel() : link.childNode.toSimplifiedMathematicaLabel();
-                    String parentNodeLabel = !nodeIsLeaf(link.parentNode) ? link.parentNode.getNoIdLabel() : link.parentNode.toSimplifiedMathematicaLabel();
-                    stringBuilder.append("\"")
-                            .append(childNodeLabel)
-                            .append("\" -> \"")
-                            .append(parentNodeLabel)
-                            .append("\", ");
-                    linksFilter.add(id);
+                stringBuilder.append("\"").append(link.childNode.uid).append("\" -> \"").append(link.parentNode.uid).append("\", ");
+                if(!usedLinks.contains(link)){
                     usedLinks.add(link);
-                    if(!usedNodes.contains(link.childNode)){
-                        usedNodes.add(link.childNode);
-                    }
-                    if(!usedNodes.contains(link.parentNode)){
-                        usedNodes.add(link.parentNode);
-                    }
+                }
+                if(!usedNodes.contains(link.childNode)){
+                    usedNodes.add(link.childNode);
+                }
+                if(!usedNodes.contains(link.parentNode)){
+                    usedNodes.add(link.parentNode);
                 }
             }
         }
@@ -217,56 +207,31 @@ public class AttackTreeBuilder {
                 .append("medSize = scale * 1.3;\n")
                 .append("largeSize = scale * 1.6;\n")
                 .append("g = LayeredGraphPlot[data,\n ");
+
         String graphLayout = "GraphLayout -> {\"LayeredDigraphEmbedding\", \"Orientation\" -> Left},\n ";
         stringBuilder.append(graphLayout)
                 .append("VertexLabels -> {");
         for(DecisionNode node : usedNodes){
-            String nodeName = !nodeIsLeaf(node) ? node.getNoIdLabel() : node.toSimplifiedMathematicaLabel();
-            String label = !nodeIsLeaf(node) ? node.rdLabel : node.rdLabel
-                    +  "\nAC: " + NODE_DF.format(node.ac)
-                    + "\nAMI: " + NODE_DF.format(node.ami);
             stringBuilder.append("\"")
-                    .append(nodeName)
-                    .append("\" -> Placed[\"")
-                    .append(label)
-                    .append("\",Center], ");
+                    .append(node.uid)
+                    .append("\" -> \"")
+                    .append(node.rdLabel)
+                    .append("\", ");
         }
         stringBuilder.deleteCharAt(stringBuilder.length() - 1).deleteCharAt(stringBuilder.length() - 1);
-        boolean addedStyle = false;
-        stringBuilder.append("},\n VertexStyle -> {");
-        for(DecisionNode node : usedNodes){
-            if(nodeIsLeaf(node)){
-                addedStyle = true;
-                stringBuilder.append("\"")
-                        .append(node.toSimplifiedMathematicaLabel())
-                        .append("\" -> Yellow, ");
-            }
-        }
-        if(addedStyle)
-            stringBuilder.deleteCharAt(stringBuilder.length() - 1).deleteCharAt(stringBuilder.length() - 1);
-        stringBuilder.append("White},\n VertexSize -> {");
-        boolean addedSize = false;
-        for(DecisionNode node: usedNodes){
-            if(nodeIsLeaf(node)){
-                addedSize = true;
-                stringBuilder.append("\"")
-                        .append(node.toSimplifiedMathematicaLabel())
-                        .append("\" -> largeSize, ");
-            }
-        }
-        if(addedSize)
-            stringBuilder.deleteCharAt(stringBuilder.length() - 1).deleteCharAt(stringBuilder.length() - 1);
-        stringBuilder.append("scale}");
-        stringBuilder.append(",\n EdgeLabels -> {");
+        stringBuilder.append("},\n VertexStyle -> {")
+                .append("White}")
+                .append(",\n VertexSize -> {")
+                .append("scale},\n ");
+
+        stringBuilder.append("EdgeLabels -> {");
         for(DecisionLink link : usedLinks){
-            String childNodeLabel = !nodeIsLeaf(link.childNode) ? link.childNode.getNoIdLabel() : link.childNode.toSimplifiedMathematicaLabel();
-            String parentNodeLabel = !nodeIsLeaf(link.parentNode) ? link.parentNode.getNoIdLabel() : link.parentNode.toSimplifiedMathematicaLabel();
             stringBuilder.append("(\"")
-                    .append(childNodeLabel)
+                    .append(link.childNode.uid)
                     .append("\" -> \"")
-                    .append(parentNodeLabel)
+                    .append(link.parentNode.uid)
                     .append("\") -> \"")
-                    .append(link.toSimplifiedMathematicaLabel())
+                    .append(link.name)
                     .append("\", ");
         }
         stringBuilder.deleteCharAt(stringBuilder.length() - 1).deleteCharAt(stringBuilder.length() - 1);
