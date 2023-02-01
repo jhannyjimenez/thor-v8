@@ -15,7 +15,7 @@ public class AttackPoint {
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof AttackPoint)
-            return cost == ((AttackPoint) obj).cost && impact == ((AttackPoint) obj).impact && path.equals(((AttackPoint) obj).path);
+            return cost == ((AttackPoint) obj).cost && path.equals(((AttackPoint) obj).path);
         return super.equals(obj);
     }
 

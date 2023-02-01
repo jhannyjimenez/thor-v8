@@ -1,6 +1,7 @@
 package org.mitre.thor.network.attack;
 
-import org.mitre.thor.network.nodes.Node;
+import org.mitre.thor.analyses.target.TargetType;
+import org.mitre.thor.input.Input;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,33 +20,73 @@ public class DecisionTree {
         this.BUDGET = budget;
     }
 
-    public AttackChain createRandomAttackChain(int rollUpIndex, Node goalNode){
-        // Get all the decisions that the decision tree can start with (decisions with no required outcomes)
-        ArrayList<Decision> startDecisions = getStartDecisions();
-        // Choose a random decision to start with
-        Decision start = startDecisions.get(RAND.nextInt(startDecisions.size()));
-        // Start the attack chain process
-        AttackChain chain = new AttackChain();
-        continueAttackChain(chain, start, rollUpIndex, goalNode);
+    public ArrayList<AttackPoint> simulateAttackPoints(Input input, AttackChain startChain, int rollUpIndex, int maxPoints, TargetType targetType) {
+        ArrayList<AttackPoint> attackPoints = new ArrayList<>();
+        input.network.findNetworkOrder(input.network.startActivity);
+        for(int r = 0; r < maxPoints; r++){
+            // Choose a random decision to start with
+            AttackChain chain;
+            Decision start;
+            if (startChain != null && !startChain.isEmpty()) {
+                chain = new AttackChain(startChain);
+                start = advanceDecision(chain, chain.getDecision(chain.getDecisionsSize() -  1));
+            }else {
+                chain = new AttackChain();
+                // Get all the decisions that the decision tree can start with (decisions with no required outcomes)
+                ArrayList<Decision> startDecisions = getStartDecisions();
+                start = startDecisions.get(RAND.nextInt(startDecisions.size()));
+            }
+            if (start == null) {
+                return attackPoints;
+            }
+            AttackChain randomChain =  createRandomAttackChain(chain, start);
+            runAttackChain(input, randomChain, rollUpIndex, targetType);
+            AttackPoint point = getAttackPoint(input, randomChain, rollUpIndex);
+
+            if (!attackPoints.contains(point))
+                attackPoints.add(point);
+            else {
+                attackPoints.get(attackPoints.indexOf(point)).count += 1;
+            }
+        }
+        return attackPoints;
+    }
+
+    public static void runAttackChain(Input input, AttackChain chain, int rollUpIndex, TargetType targetType) {
+        input.network.resetOperabilities(rollUpIndex);
+        input.network.setAttackChainOperabilities(chain, rollUpIndex);
+        input.network.oAlgorithmUsingOrder(input.iConfig.inputQueues.get(rollUpIndex).rollUpRule, rollUpIndex, targetType);
+    }
+
+    public static AttackPoint getAttackPoint(Input input, AttackChain chain, int rollUpI) {
+        double impact = 100.0 - input.network.goalActivity.analysisDataHolders.get(rollUpI).operability;
+        double cost = chain.getAccumulatedCost();
+        return new AttackPoint(cost, impact, chain);
+    }
+
+    public AttackChain createRandomAttackChain(AttackChain chain, Decision start){
+
+        continueAttackChain(chain, start);
 
         return chain;
     }
 
-    private void continueAttackChain(AttackChain chain, Decision targetDecision, int rollUpIndex, Node goalNode) {
+    private void continueAttackChain(AttackChain chain, Decision targetDecision) {
         // Check if adding the target decision goes over the budget
         if(!USE_BUDGET || chain.getAccumulatedCost() + targetDecision.getCost() <= BUDGET){
             chain.addDecision(targetDecision);
-            Route chosenRoute = getNextRoute(targetDecision);
-            chain.addRoute(chosenRoute);
-            if(chosenRoute.getTargetNode() != null){
-                chosenRoute.getTargetNode().setOperability(rollUpIndex, chosenRoute.getOperability());
-            }
-            Decision nextDecision = getNextDecision(chain, chosenRoute);
+            Decision nextDecision = advanceDecision(chain, targetDecision);
             boolean shouldAttack = RAND.nextBoolean();
             if(nextDecision != null && shouldAttack){
-                continueAttackChain(chain, nextDecision, rollUpIndex, goalNode);
+                continueAttackChain(chain, nextDecision);
             }
         }
+    }
+
+    private Decision advanceDecision(AttackChain chain, Decision targetDecision) {
+        Route chosenRoute = getNextRoute(targetDecision);
+        chain.addRoute(chosenRoute);
+        return getNextDecision(chain, chosenRoute);
     }
 
     public ArrayList<Decision> getStartDecisions(){
@@ -131,6 +172,15 @@ public class DecisionTree {
             }
         }
         decisions.add(decision);
+    }
+
+    public boolean containsDecision(int dId) {
+        for (Decision d : decisions) {
+            if (d.getId() == dId) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void clear(){

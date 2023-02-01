@@ -730,7 +730,7 @@ public abstract class Input {
         }
 
         XSSFSheet routesSheet = workbook.getSheet("Routes");
-        if(routesSheet != null){
+        if(routesSheet != null) {
             int numOfRows = routesSheet.getLastRowNum();
             for(int i = 0; i < numOfRows; i++){
                 XSSFRow iRow = routesSheet.getRow(i + 1);
@@ -745,7 +745,7 @@ public abstract class Input {
                 int routeId = (int) routeIdCell.getNumericCellValue();
                 double probSuccess = probSuccessCell.getNumericCellValue();
                 String nodeName = nodeNameCell != null ? nodeNameCell.toString() : "";
-                double operability = operabilityCell != null ? operabilityCell.getNumericCellValue() : -1;
+                double operability = operabilityCell != null && operabilityCell.getCellType() == CellType.NUMERIC ? operabilityCell.getNumericCellValue() : -1;
                 String comment = commentCell != null ? commentCell.toString() : "";
 
                 Node node = null;
@@ -755,8 +755,6 @@ public abstract class Input {
                 decisionTree.addRoute(new Route(decisionId, routeId, probSuccess, node, operability, comment));
             }
         }
-
-        System.out.println("Testing at StandardInput::readAttackTree()");
     }
 
     private XSSFSheet getDependenciesSheet(){

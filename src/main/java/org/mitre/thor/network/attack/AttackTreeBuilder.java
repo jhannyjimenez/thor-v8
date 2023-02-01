@@ -1,10 +1,11 @@
 package org.mitre.thor.network.attack;
 
 import javafx.util.Pair;
+import org.mitre.thor.analyses.target.TargetType;
+import org.mitre.thor.input.Input;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
 
@@ -13,8 +14,6 @@ import static org.mitre.thor.network.attack.AttackTreeBuilder.NODE_DF;
 public class AttackTreeBuilder {
 
     public final static DecimalFormat NODE_DF = new DecimalFormat("0.00");
-
-    private final ArrayList<AttackPoint> attackPoints;
     private final DecisionTree decisionTree;
 
     private final ArrayList<DecisionNode> nodes = new ArrayList<>();
@@ -32,15 +31,22 @@ public class AttackTreeBuilder {
     private final TextTree textTree = new TextTree();
     private String textTreeString = "";
 
-    public AttackTreeBuilder(ArrayList<AttackPoint> attackPoints, DecisionTree decisionTree, DecisionOption option,
-                             boolean useBudget, double budget, boolean includeTextStop, boolean includeMathStop){
+    private final Input input;
+    private final int maxPoints;
+    private final TargetType targetType;
+
+    public AttackTreeBuilder(DecisionTree decisionTree, DecisionOption option,
+                             boolean useBudget, double budget, boolean includeTextStop, boolean includeMathStop, Input input,
+                             int maxPoints, TargetType targetType){
         this.decisionTree = decisionTree;
-        this.attackPoints = new ArrayList<>(attackPoints);
         this.decisionOption = option;
         this.CAP_BUDGET = useBudget;
         this.BUDGET = budget;
         this.INCLUDE_TEXT_STOP = includeTextStop;
         this.INCLUDE_MATH_STOP = includeMathStop;
+        this.input = input;
+        this.maxPoints = maxPoints;
+        this.targetType = targetType;
 
         //this.attackPoints.sort(Comparator.comparingDouble(this::getAttackPointValue));
         //Collections.reverse(this.attackPoints);
@@ -71,7 +77,9 @@ public class AttackTreeBuilder {
                 textTree.deleteObject(link);
             }
         }
+
         nodes.remove(node);
+        stopNodes.remove(node);
         if(removeFromTextTree){
             textTree.deleteObject(node);
         }
@@ -182,7 +190,8 @@ public class AttackTreeBuilder {
 
         for(DecisionLink link : links){
             if(INCLUDE_MATH_STOP || (!stopNodes.contains(link.childNode) && !stopNodes.contains(link.parentNode))){
-                String id = link.childNode.decision.getId() + ":" + link.parentNode.decision.getId();
+                String parentID = link.parentNode.decision != null ? String.valueOf(link.parentNode.decision.getId()) : "STOP";
+                String id = link.childNode.decision.getId() + ":" + parentID;
                 if(!linksFilter.contains(id)) {
                     String childNodeLabel = !nodeIsLeaf(link.childNode) ? link.childNode.getNoIdLabel() : link.childNode.toSimplifiedMathematicaLabel();
                     String parentNodeLabel = !nodeIsLeaf(link.parentNode) ? link.parentNode.getNoIdLabel() : link.parentNode.toSimplifiedMathematicaLabel();
@@ -266,24 +275,128 @@ public class AttackTreeBuilder {
         return stringBuilder.toString();
     }
 
-    public void buildTree(){
-        textTree.clear(); stopNodes.clear(); nodes.clear(); links.clear(); tabCount = 0;
-        buildTreeLayer(decisionTree.getStartDecisions(), addNode( 0.0, Double.NaN, 0.0 , "", "", null), new AttackChain(), 0);
+    public double getDecisionTreeValue() {
+        double totalValue = 0.0;
+        for (DecisionNode stopNode : stopNodes) {
+            totalValue += getDecisionNodeChance(stopNode) * stopNode.ami;
+        }
+        return totalValue;
+    }
 
-        // EXPERIMENTAL
-        //removeUnnecessaryDecisions(); //TODO: Fix does not work
-        //removeUnnecessaryStops();
-        //cleanUpTree();
-        this.textTreeString = addAdditionalTextTreeFeatures();
+    public double calculateRealImpacts() {
+        DecisionNode start = getStartDNode();
+        realImpactHelper(start);
+        return start.rmi;
+    }
+
+    public void realImpactHelper(DecisionNode target) {
+        ArrayList<DecisionLink> childLinks = getChildLinks(target);
+        double totalValue = 0.0;
+        for (DecisionLink link : childLinks) {
+            if (Double.isNaN(link.parentNode.rmi)) {
+                realImpactHelper(link.parentNode);
+            }
+            totalValue += link.parentNode.rmi * link.probability;
+        }
+        target.rmi = totalValue;
+    }
+
+    public double getDecisionNodeChance(DecisionNode node) {
+        double chance = 1.0;
+        DecisionNode target = node;
+        while (true) {
+            ArrayList<DecisionLink> parentLinks = getParentLinks(target);
+            if (parentLinks.isEmpty()) {
+                break;
+            }
+            chance *= parentLinks.get(0).probability;
+            target = parentLinks.get(0).childNode;
+        }
+        return chance;
+    }
+
+    private ArrayList<DecisionLink> getParentLinks(DecisionNode node) {
+        ArrayList<DecisionLink> parentLinks = new ArrayList<>();
+        for (DecisionLink link : links) {
+            if (link.parentNode == node) {
+                parentLinks.add(link);
+            }
+        }
+        return parentLinks;
+    }
+
+    private ArrayList<DecisionLink> getChildLinks(DecisionNode node) {
+        ArrayList<DecisionLink> childLinks = new ArrayList<>();
+        for (DecisionLink link : links) {
+            if (link.childNode == node) {
+                childLinks.add(link);
+            }
+        }
+        return childLinks;
+    }
+
+    private DecisionNode getStartDNode() {
+        ArrayList<DecisionNode> starts = new ArrayList<>(nodes);
+        for (DecisionLink link : links) {
+            starts.remove(link.parentNode);
+        }
+        return starts.get(0);
+    }
+
+    public void buildTree(int rollUpI){
+        textTree.clear(); stopNodes.clear(); nodes.clear(); links.clear(); tabCount = 0;
+        buildTreeLayer(decisionTree.getStartDecisions(), addNode( 0.0, Double.NaN, 0.0 , "", "", null), new AttackChain(), 0, rollUpI, new ArrayList<>());
+        trimStops();
+        calculateRealImpacts();
+        this.textTreeString = formTextTree();
+    }
+
+    private void trimStops() {
+        DecisionNode start = getStartDNode();
+        trimHelper(start);
+    }
+
+    private void trimHelper(DecisionNode target) {
+        for (DecisionLink childLink: getChildLinks(target)) {
+            if (!nodeReachesSuccessfulEnd(childLink.parentNode)) {
+                removeNodeRecursively(childLink.parentNode, true);
+                DecisionNode newStop = addNode(target.ac, 0.0, 0.0, "end", "Stop Tree", null);
+                stopNodes.add(newStop);
+                addLink(childLink.name, childLink.comment, target, newStop, childLink.probability, childLink.ami, childLink.route);
+            } else {
+                trimHelper(childLink.parentNode);
+            }
+        }
+    }
+
+    private boolean nodeReachesSuccessfulEnd(DecisionNode target) {
+        if (stopNodes.contains(target) && target.ami > 0) {
+            return true;
+        } else {
+            for (DecisionLink cLink: getChildLinks(target)) {
+                if (nodeReachesSuccessfulEnd(cLink.parentNode)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     public String getTextTreeString(){
         return this.textTreeString;
     }
 
-    private void buildTreeLayer(ArrayList<Decision> options, DecisionNode node, AttackChain currentPath, int depth){
+    private void buildTreeLayer(ArrayList<Decision> options, DecisionNode node, AttackChain currentPath, int depth, int rollUpI, ArrayList<AttackPoint> attackPoints){
+        ArrayList<AttackPoint> newSimulations = decisionTree.simulateAttackPoints(input, currentPath, rollUpI, maxPoints / (depth + 1), targetType);
+        for (AttackPoint point : newSimulations) {
+            if (attackPoints.contains(point)) {
+                attackPoints.get(attackPoints.indexOf(point)).count += 1;
+            } else {
+                attackPoints.add(point);
+            }
+        }
         // If there are still options left, get the best decision and the impact it has on the goal
-        Pair<Decision, Double> bestDecision = !options.isEmpty() ? getBestDecision(options, currentPath) : null;
+        Pair<Decision, Double> bestDecision = !options.isEmpty() ? getBestDecision(options, currentPath, attackPoints) : null;
         // Only continue if there is valid possible decision
         if(bestDecision != null && bestDecision.getKey() != null && bestDecision.getValue() != 100.0){
             // Calculate the new accumulated cost
@@ -298,35 +411,31 @@ public class AttackTreeBuilder {
             currentPath.addDecision(chosenDecision);
             ArrayList<ValuedRoute> valuedRoutes = new ArrayList<>();
             for(Route route : routeOptions){
-                valuedRoutes.add(new ValuedRoute(route, getAvgRouteValue(route, currentPath)));
+                valuedRoutes.add(new ValuedRoute(route, getAvgRouteValue(route, currentPath, attackPoints)));
             }
             valuedRoutes.sort(Comparator.comparingDouble(ValuedRoute::getValue).reversed());
             for(ValuedRoute route : valuedRoutes){
                 // Continue to the next layer
                 DecisionNode newNode = graphTree(route.getRoute(), chosenDecision, node, nAC, emo, depth, route.getValue());
-                continueBuildingTree(route.getRoute(), newNode, currentPath, depth);
+                continueBuildingTree(route.getRoute(), newNode, currentPath, depth, rollUpI, attackPoints);
             }
         }else{
             // Configure the text tree to stop
             treeStopped = true;
             stopNodes.add(node);
-            if(INCLUDE_TEXT_STOP || INCLUDE_MATH_STOP){
-                node.rdLabel = "end";
-                node.rdComment = "Stop Tree";
-                node.ac = currentPath.getAccumulatedCost();
-                node.cost = 0.0;
-                node.ami = getExactChainValue(currentPath);
+            node.rdLabel = "end";
+            node.rdComment = "Stop Tree";
+            node.ac = currentPath.getAccumulatedCost();
+            node.cost = 0.0;
+            double mi = getExactChainValue(currentPath, attackPoints, rollUpI);
+            node.rmi = mi;
+            node.ami = mi;
 
-                if(INCLUDE_TEXT_STOP){
-                    textTree.addLine(node ,depth + tabCount);
-                }
-            }else{
-                removeNodeRecursively(node, true);
-            }
+            textTree.addLine(node ,depth + tabCount);
         }
     }
 
-    private void continueBuildingTree(Route route, DecisionNode newNode, AttackChain currentPath, int depth){
+    private void continueBuildingTree(Route route, DecisionNode newNode, AttackChain currentPath, int depth, int rollUpI, ArrayList<AttackPoint> attackPoints){
         AttackChain newPath = currentPath.clone();
         newPath.addRoute(route);
         int nDepth = depth + this.tabCount; this.tabCount = 0;
@@ -339,7 +448,7 @@ public class AttackTreeBuilder {
             }
         }
 
-        buildTreeLayer(finalOptions, newNode, newPath, nDepth);
+        buildTreeLayer(finalOptions, newNode, newPath, nDepth, rollUpI, attackPoints);
     }
 
     private DecisionNode graphTree(Route route, Decision decision, DecisionNode preNode, double ac, double ami, int depth, double routeAMI){
@@ -369,59 +478,6 @@ public class AttackTreeBuilder {
         return newNode;
     }
 
-    private void removeUnnecessaryDecisions(){
-        boolean hasUnnecessaryDecisions = true;
-        while(hasUnnecessaryDecisions){
-            ArrayList<DecisionNode> leafNodes = getNonStopLeafNodes();
-            ArrayList<DecisionNode> nodesToRemove = new ArrayList<>();
-            for(DecisionNode leaf : leafNodes){
-                DecisionLink link = getLinkWhereNodeIsParent(leaf);
-                double leafAMI = Double.parseDouble(NODE_DF.format(leaf.ami));
-                if(link != null){
-                    double linkAMi = Double.parseDouble(NODE_DF.format(link.ami));
-                    if(leafAMI >= linkAMi)
-                        nodesToRemove.add(leaf);
-                }
-            }
-            if(nodesToRemove.size() == 0){
-                hasUnnecessaryDecisions = false;
-            }else{
-                for(DecisionNode node : nodesToRemove){
-                    removeNodeRecursively(node, true);
-                }
-            }
-        }
-    }
-
-    private void removeUnnecessaryStops(){
-        ArrayList<DecisionNode> nodesToRemove = new ArrayList<>();
-        for(DecisionNode node : nodes){
-            ArrayList<DecisionNode> parents = getParentNodes(node);
-            boolean isAllStops = true;
-            for(DecisionNode parent : parents){
-                if(!stopNodes.contains(parent)){
-                    isAllStops = false;
-                    break;
-                }
-            }
-            if(isAllStops){
-                nodesToRemove.addAll(parents);
-            }
-        }
-        for(DecisionNode node : nodesToRemove){
-            removeNodeRecursively(node, true);
-        }
-    }
-
-    // Adds missing stops and removes links without a parents
-    private void cleanUpTree(){
-        for(DecisionNode leaf : getLeafNodes()){
-            if(!stopNodes.contains(leaf)){
-
-            }
-        }
-    }
-
     private ArrayList<DecisionNode> getParentNodes(DecisionNode child){
         ArrayList<DecisionNode> parents = new ArrayList<>();
         for(DecisionLink link : links){
@@ -432,7 +488,7 @@ public class AttackTreeBuilder {
         return parents;
     }
 
-    private String addAdditionalTextTreeFeatures(){
+    private String formTextTree(){
         String[] preLines = textTree.toString().split("\\r?\\n");
         String[] lines = new String[preLines.length + 1];
         lines[0] = "START:";
@@ -442,7 +498,8 @@ public class AttackTreeBuilder {
         int maxCostLength = 0;
         int maxACLength = 0;
         int maxAMILength = 0;
-        int maxProbLength = 3;
+        int maxRMILength = 0;
+        int maxProbLength = 0;
         for(String line : lines){
             maxChars = Math.max(line.length(), maxChars);
         }
@@ -453,35 +510,43 @@ public class AttackTreeBuilder {
                 maxCostLength = Math.max(String.valueOf((int) node.cost).length(), maxCostLength);
                 maxACLength = Math.max(String.valueOf((int) node.ac).length(), maxACLength);
                 maxAMILength = Math.max(NODE_DF.format(node.ami).length(), maxAMILength);
+                maxRMILength = Math.max(NODE_DF.format(node.rmi).length(), maxRMILength);
             }else if(object instanceof DecisionLink){
                 DecisionLink link = (DecisionLink) object;
                 maxAMILength = Math.max(NODE_DF.format(link.ami).length(), maxAMILength);
                 maxProbLength = Math.max(String.valueOf(Math.round(link.probability * 100.0)).length(), maxProbLength);
             }
         }
-        int leftBorderIndex = maxChars + 5;
-        int costBorderIndex =  leftBorderIndex + 5;
-        int acBorderIndex = costBorderIndex + 5;
-        int amiBorderIndex = acBorderIndex + 5;
-        int probBorderIndex = amiBorderIndex + 5;
+        int padding = 3;
+        int leftBorderIndex = maxChars + padding;
+        // Right borderse
+        int costBorderIndex =  leftBorderIndex + padding;
+        int acBorderIndex = costBorderIndex + padding;
+        int rmiBorderIndex = acBorderIndex + padding;
+        int amiBorderIndex = rmiBorderIndex + padding;
+        int probBorderIndex = amiBorderIndex + padding;
         char borderChar = '|';
 
         int historyIndex = -1;
-        int firstIndex = leftBorderIndex + 3;
-        int secondIndex = firstIndex + costBorderIndex - leftBorderIndex + (maxCostLength + 1);
-        int thirdIndex = secondIndex + acBorderIndex - costBorderIndex + (maxACLength + 1);
-        int fourthIndex = thirdIndex + amiBorderIndex - acBorderIndex + maxAMILength;
+        int firstIndex = leftBorderIndex + 2;
+        int secondIndex = firstIndex + padding + maxCostLength + 1; //The additional 1 are for symbols like $ or %
+        int thirdIndex = secondIndex + padding + maxACLength + 1;
+        int fourthIndex = thirdIndex + padding + maxRMILength;
+        int fifthIndex = fourthIndex + padding + maxAMILength;
+        int end = fifthIndex + padding + 1;
 
         for(int i = 0; i < lines.length; i++){
             lines[i] = insertChartAt(lines[i], 0, borderChar);
             lines[i] = addExtendedCharAt(lines[i], leftBorderIndex, borderChar);
             lines[i] = addExtendedCharAt(lines[i], costBorderIndex, borderChar);
             lines[i] = addExtendedCharAt(lines[i], acBorderIndex, borderChar);
+            lines[i] = addExtendedCharAt(lines[i], rmiBorderIndex, borderChar);
             lines[i] = addExtendedCharAt(lines[i], amiBorderIndex, borderChar);
             lines[i] = addExtendedCharAt(lines[i], probBorderIndex, borderChar);
 
             double cost = Double.NaN;
             double ac = Double.NaN;
+            double rmi = Double.NaN;
             double ami = Double.NaN;
             double prob = Double.NaN;
 
@@ -492,6 +557,7 @@ public class AttackTreeBuilder {
                     cost = node.cost;
                     ac = node.ac;
                     ami = node.ami;
+                    rmi = node.rmi;
                 }else if(object instanceof DecisionLink){
                     DecisionLink link = (DecisionLink) object;
                     prob = link.probability;
@@ -505,83 +571,50 @@ public class AttackTreeBuilder {
             String acString = !Double.isNaN(ac) ? "$" + (int) ac : "-";
             lines[i] = appendValueIntoString(lines[i], secondIndex, acString, maxACLength + 1);
 
+            String rmiString = !Double.isNaN(rmi) ? NODE_DF.format(rmi) : "-";
+            lines[i] = appendValueIntoString(lines[i], thirdIndex, rmiString, maxRMILength);
+
             String amiString = !Double.isNaN(ami) ? NODE_DF.format(ami) : "-";
-            lines[i] = appendValueIntoString(lines[i], thirdIndex, amiString, maxAMILength);
+            lines[i] = appendValueIntoString(lines[i], fourthIndex, amiString, maxAMILength);
 
             String probString = !Double.isNaN(prob) ? Math.round(prob * 100.0) + "%" : "-";
-            lines[i] = appendValueIntoString(lines[i], fourthIndex, probString, maxProbLength + 1);
+            lines[i] = appendValueIntoString(lines[i], fifthIndex, probString, maxProbLength + 1);
 
             historyIndex++;
         }
 
-        String hLine = "";
+        String hLine = "|                                                                                            " +
+                "                                                                                                   " +
+                "                                                                                                   ";
+        /*
         hLine = insertChartAt(hLine, 0, borderChar);
         hLine = addExtendedCharAt(hLine, leftBorderIndex, borderChar);
         hLine = addExtendedCharAt(hLine, costBorderIndex, borderChar);
         hLine = addExtendedCharAt(hLine, acBorderIndex, borderChar);
+        hLine = addExtendedCharAt(hLine, rmiBorderIndex, borderChar);
         hLine = addExtendedCharAt(hLine, amiBorderIndex, borderChar);
         hLine = addExtendedCharAt(hLine, probBorderIndex, borderChar);
+         */
 
-        hLine = appendValueIntoString(hLine, firstIndex, "COST", maxCostLength + 1);
-        hLine = appendValueIntoString(hLine, secondIndex, "AC", maxACLength + 1);
-        hLine = appendValueIntoString(hLine, thirdIndex, "AMI", maxAMILength);
-        hLine = appendValueIntoString(hLine, fourthIndex, "PROB", maxProbLength + 1);
-        hLine = replaceValueIntoString(hLine, 3, "TREE");
+        hLine = appendValueIntoString(hLine, 3, "TREE", 4);
+        hLine = appendValueIntoString(hLine, firstIndex, "COST", maxCostLength);
+        hLine = appendValueIntoString(hLine, secondIndex, "AC", maxACLength);
+        hLine = appendValueIntoString(hLine, thirdIndex, "RMI", maxRMILength);
+        hLine = appendValueIntoString(hLine, fourthIndex, "AMI", maxAMILength);
+        hLine = appendValueIntoString(hLine, fifthIndex, "PROB", maxProbLength);
+        hLine = hLine.substring(0, end) + "|";
 
         StringBuilder out = new StringBuilder();
-        String dashLine = "|" + fillStringUpToChar(fourthIndex + maxProbLength + 2, '-') + "|";
-        out.append(dashLine).append("\n");
+        String FullUnderScoreLine = fillStringUpToChar(end + 1, '_');
+        String InsideUnderScoreLine = "|" + fillStringUpToChar(end - 1, '_') + "|";
+        out.append(FullUnderScoreLine).append("\n");
         out.append(hLine).append("\n");
-        out.append(dashLine).append("\n");
+        out.append(InsideUnderScoreLine).append("\n");
         for(String line : lines){
             out.append(line).append("\n");
         }
-        out.append(dashLine);
+        out.append(InsideUnderScoreLine);
         return out.toString();
-    }
-
-    private ArrayList<DecisionNode> getLeafNodes(){
-        ArrayList<DecisionNode> out = new ArrayList<>();
-        for(DecisionNode node : nodes) {
-            boolean isLeaf = true;
-            for (DecisionLink link : links) {
-                if (node == link.childNode) {
-                    isLeaf = false;
-                    break;
-                }
-            }
-            if (isLeaf) {
-                out.add(node);
-            }
-        }
-        return out;
-    }
-
-    private ArrayList<DecisionNode> getNonStopLeafNodes(){
-        ArrayList<DecisionNode> out = new ArrayList<>();
-        for(DecisionNode node : nodes){
-            boolean isLeaf = true;
-            for(DecisionLink link : links){
-                if(stopNodes.contains(node) || (node == link.childNode && !stopNodes.contains(link.parentNode))){
-                    isLeaf = false;
-                    break;
-                }
-            }
-            if(isLeaf)
-                out.add(node);
-        }
-        return out;
-    }
-
-    private DecisionLink getLinkWhereNodeIsParent(DecisionNode node){
-        DecisionLink out = null;
-        for(DecisionLink link : links){
-            if(link.parentNode == node){
-                out = link;
-                break;
-            }
-        }
-        return out;
     }
 
     private String insertChartAt(String inString, int charIndex, char character){
@@ -605,7 +638,8 @@ public class AttackTreeBuilder {
     }
 
     private String fillStringUpToChar(int charIndex, char character){
-        return String.valueOf(character).repeat(Math.max(0, charIndex));
+        int r = Math.max(0, charIndex);
+        return String.valueOf(character).repeat(r);
     }
 
     private String appendValueIntoString(String inString, int stringIndex, String value, int targetLength){
@@ -625,14 +659,14 @@ public class AttackTreeBuilder {
         return out.toString();
     }
 
-    private Pair<Decision, Double> getBestDecision(ArrayList<Decision> decisions, AttackChain currentPath){
+    private Pair<Decision, Double> getBestDecision(ArrayList<Decision> decisions, AttackChain currentPath, ArrayList<AttackPoint> attackPoints){
         Decision bestDecision = null;
         double bestAvgImpact = 0.0;
 
         for(Decision decision : decisions){
             boolean withinBudget = !CAP_BUDGET || currentPath.getAccumulatedCost() + decision.getCost() <= BUDGET;
             if (withinBudget) {
-                double avgImpact = getAvgDecisionValue(decision, currentPath);
+                double avgImpact = getAvgDecisionValue(decision, currentPath, attackPoints);
                 if(avgImpact > bestAvgImpact){
                     bestAvgImpact = avgImpact;
                     bestDecision = decision;
@@ -642,19 +676,19 @@ public class AttackTreeBuilder {
         return new Pair<>(bestDecision, bestAvgImpact);
     }
 
-    private double getAvgDecisionValue(Decision decision, AttackChain prevPath){
+    private double getAvgDecisionValue(Decision decision, AttackChain prevPath, ArrayList<AttackPoint> attackPoints){
         AttackChain newChain = new AttackChain(prevPath);
         newChain.addDecision(decision);
-        return getAvgChainValue(newChain);
+        return getAvgChainValue(newChain, attackPoints);
     }
 
-    private double getAvgRouteValue(Route route, AttackChain prevPath){
+    private double getAvgRouteValue(Route route, AttackChain prevPath, ArrayList<AttackPoint> attackPoints){
         AttackChain newChain = new AttackChain(prevPath);
         newChain.addRoute(route);
-        return getAvgChainValue(newChain);
+        return getAvgChainValue(newChain, attackPoints);
     }
 
-    private double getAvgChainValue(AttackChain chain){
+    private double getAvgChainValue(AttackChain chain, ArrayList<AttackPoint> attackPoints){
         double sum = 0.0;
         int count = 0;
         for(AttackPoint point : attackPoints){
@@ -670,13 +704,15 @@ public class AttackTreeBuilder {
         return count != 0 ? sum / count : 0.0;
     }
 
-    private double getExactChainValue(AttackChain chain){
+    private double getExactChainValue(AttackChain chain, ArrayList<AttackPoint> attackPoints, int rollUpI){
         for(AttackPoint point : attackPoints){
             if(point.path.equals(chain)){
                 return getAttackPointValue(point);
             }
         }
-        return Double.NaN;
+        DecisionTree.runAttackChain(input, chain, rollUpI, targetType);
+
+        return DecisionTree.getAttackPoint(input, chain, rollUpI).impact;
     }
 
     private double getAttackPointValue(AttackPoint point){
@@ -705,6 +741,7 @@ class DecisionNode {
     public Decision decision;
     public double ac;
     public double ami;
+    public double rmi = Double.NaN;
     public double cost;
     public String rdLabel;
     public String rdComment;
@@ -748,7 +785,8 @@ class DecisionNode {
 
     @Override
     public String toString() {
-        return "'" + rdComment + "' " + rdLabel + " | AC: " + NODE_DF.format(ac) + ", AMI: " + NODE_DF.format(ami) + " |";
+        return "'" + rdComment + "' " + rdLabel + " | AC: " + NODE_DF.format(ac) + ", AMI: "
+                + NODE_DF.format(ami) + ", RMI: " + NODE_DF.format(rmi) + " |";
     }
 
     private String getIdText(){

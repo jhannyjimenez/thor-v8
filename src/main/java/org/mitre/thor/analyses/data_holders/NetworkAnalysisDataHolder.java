@@ -19,12 +19,6 @@ public class NetworkAnalysisDataHolder implements Cloneable{
 
     public HashMap<Integer, HashMap<Integer, Double>[]> cgRunMap = new HashMap<>();
 
-    //ATTACK
-    //Key 1 = Cost
-    //Key 2 = Impact
-    //Value = A string path
-    public ArrayList<AttackPoint> attackPoints = new ArrayList<>();
-
     public AttackTreeBuilder attackTreeBuilder;
 
     public NetworkAnalysisDataHolder(InputQueue queue){

@@ -5,14 +5,19 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.*;
+import org.mitre.thor.analyses.AttackAnalysis;
 import org.mitre.thor.logger.CoreLogger;
 import org.mitre.thor.input.Input;
+import org.mitre.thor.network.attack.Decision;
+import org.mitre.thor.network.attack.DecisionTree;
+import org.mitre.thor.network.attack.Route;
 import org.mitre.thor.network.nodes.Activity;
 import org.mitre.thor.analyses.AnalysesForm;
 import org.mitre.thor.analyses.rolluprules.RollUpEnum;
 import org.mitre.thor.analyses.target.TargetType;
 import org.mitre.thor.network.nodes.Factor;
 import org.mitre.thor.network.nodes.Group;
+import org.mitre.thor.network.nodes.Node;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -38,6 +43,7 @@ public class InputCorrecter {
         fixedStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.index);
     }
 
+    //TODO: make cleaner using the new private 'validate" methods
     public void findDependenciesErrors(){
         clear();
 
@@ -385,7 +391,9 @@ public class InputCorrecter {
         }
     }
 
+    //TODO: make cleaner using the new private 'validate" methods
     public void findFactorsErrors() {
+        clear();
         XSSFSheet factorsSheet = input.workbook.getSheet("Factors");
         if (factorsSheet == null) {
             throwError("Could not find any sheets labeled 'Factors'");
@@ -518,6 +526,120 @@ public class InputCorrecter {
                 }
             }
         }
+    }
+
+    public void findAttackChainErrors() {
+        clear();
+        DecisionTree decisionTree = new DecisionTree(false, 0.0);
+        XSSFSheet decisionSheet = input.workbook.getSheet("Decisions");
+        if (!validateSheet(decisionSheet, "Decision", "Attack")) {
+            return;
+        }
+
+        int numOfRow = decisionSheet.getLastRowNum();
+        for(int i = 0; i < numOfRow; i++){
+            XSSFRow iRow = decisionSheet.getRow(i + 1);
+            if (validateRow(iRow, i + 1, "ID, Requirement, Cost, Description")) {
+                XSSFCell idCell = iRow.getCell(0);validateCell(idCell, 0, i + 1, "Decisions", "ID", true);
+                XSSFCell costCell = iRow.getCell(2);
+                validateCell(costCell, 2, i + 1, "Decisions", "Cost", true);
+
+                int id = idCell != null ? (int) idCell.getNumericCellValue() : -1;
+                double cost = costCell != null ? costCell.getNumericCellValue() : 0;
+                decisionTree.addDecision(new Decision(id, "", cost, ""));
+            }
+        }
+
+        XSSFSheet routesSheet = input.workbook.getSheet("Routes");
+        if (!validateSheet(routesSheet, "Routes", "Analysis")) {
+            return;
+        }
+        int numOfRows = routesSheet.getLastRowNum();
+        boolean opAt100 = false;
+        for(int i = 0; i < numOfRows; i++){
+            XSSFRow iRow = routesSheet.getRow(i + 1);
+            if (validateRow(iRow, i + 1, "Decision ID, Route ID, Probability of Success")) {
+                XSSFCell decisionIdCell = iRow.getCell(0);
+                if (validateCell(decisionIdCell, 0, i + 1, "Routes", "Decision ID", true)) {
+                    int dId = (int) decisionIdCell.getNumericCellValue();
+                    if (!decisionTree.containsDecision(dId)) {
+                        throwError("Could not find a decision with id: " + dId + ", in the 'Decisions'");
+                        throwError("\tPlease fix cell " + integerToAlphabetic(0) + "" + (i + 2) + " in the 'Routes' sheet");
+                    }
+                }
+                XSSFCell routeIdCell = iRow.getCell(1);
+                validateCell(routeIdCell, 1, i + 1, "Routes", "Route ID", true);
+                XSSFCell probSuccessCell = iRow.getCell(2);
+                if (validateCell(probSuccessCell, 2, i + 1, "Routes", "Probability of Success", true)) {
+                    double prob = probSuccessCell.getNumericCellValue();
+                    clampCellValue(prob,2, i + 1, "Routes", 0, 1);
+                }
+                XSSFCell nodeNameCell = iRow.getCell(3);
+                XSSFCell operabilityCell = iRow.getCell(4);
+
+                String nodeName = nodeNameCell != null ? nodeNameCell.toString() : "";
+
+                if (!nodeName.isBlank() && !nodeName.isEmpty()) {
+                    Node node = input.network.getNode(nodeName);
+                    if (node == null) {
+                        throwError("The node at " + integerToAlphabetic(3) + "" + (i + 2) + " could not be found in the Network");
+                    }
+                    if (validateCell(operabilityCell, 4, i + 1, "Routes", "Node Operability", true)) {
+                        double op = operabilityCell.getNumericCellValue();
+                        clampCellValue(op, 4, i + 1, "Routes", 0, 100);
+                        if (op == 100.0) {
+                            opAt100 = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (opAt100) {
+            throwError("In the Routes sheet, no node should have an operability set to 100.");
+            throwError("\this causes the node to have a permanent operability of 100");
+            throwError("\tinstead leave the node and operability column blank");
+        }
+    }
+
+    private boolean validateCell(XSSFCell cell, int column, int row, String sheet, String value, boolean isNumeric) {
+        if (cell == null) {
+            throwError("The cell " + integerToAlphabetic(column) + "" + (row + 1) + " in the " + sheet + " sheet" +
+                    "is null.");
+            throwError("\tCell should contain the " + value);
+            return false;
+        } else if (isNumeric && cell.getCellType() != CellType.NUMERIC) {
+            throwError("The cell " + integerToAlphabetic(column) + "" + (row + 1) + " in the " + sheet + " sheet" +
+                    "is not a numeric cell.");
+            throwError("\tCell should contain the " + value + " which is a numeric value");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean clampCellValue(double value, int col, int row, String sheet, double min, double max) {
+        if (value < min || value > max) {
+            throwError("The value at cell " + integerToAlphabetic(col) + "" + (row + 1) + " in the '" + sheet + "' sheet");
+            throwError("\tmust be a value between " + min + " and " + max + " (inclusive)");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateRow(XSSFRow row, int i, String contents) {
+        if (row == null) {
+            throwError("Row " + (i + 1) + " in the Decisions sheet is null");
+            throwError("\trow should contain: " + contents);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateSheet(XSSFSheet sheet, String name, String analysis) {
+        if (sheet == null) {
+            throwError("Could not find any sheets labeled '" + name + "'. This sheet is required for the " + analysis + " analysis");
+            return false;
+        }
+        return true;
     }
 
     public void printErrors(boolean transition){

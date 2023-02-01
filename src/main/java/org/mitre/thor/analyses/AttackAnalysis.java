@@ -35,48 +35,24 @@ public class AttackAnalysis extends Analysis {
         for(Node node : input.network.getNodes()){
             node.isOn = true;
         }
-        simulateAttacks(input);
         buildTree(input);
         return true;
-    }
-
-    private void simulateAttacks(Input input){
-
-        // Pre-calculate the oder to find the goal operability
-        input.network.findNetworkOrder(input.network.startActivity);
-        for(int a = 0; a < input.iConfig.inputQueues.size(); a++) {
-            if (input.iConfig.inputQueues.get(a).containsTargetAnalysis(AnalysesForm.ATTACK)) {
-                for(int r = 0; r < MAX_POINTS; r++){
-                    AttackChain path =  input.decisionTree.createRandomAttackChain(a, input.network.goalActivity);
-                    input.network.oAlgorithmUsingOrder(input.iConfig.inputQueues.get(a).rollUpRule, a, targetType);
-                    double impact = 100.0 - input.network.goalActivity.analysisDataHolders.get(a).operability;
-                    double cost = path.getAccumulatedCost();
-
-                    AttackPoint point = new AttackPoint(cost, impact, path);
-                    if (!input.network.analysisDataHolders.get(a).attackPoints.contains(point))
-                        input.network.analysisDataHolders.get(a).attackPoints.add(point);
-                    else {
-                        AttackPoint np = input.network.analysisDataHolders.get(a).attackPoints.get(input.network.analysisDataHolders.get(a).attackPoints.indexOf(point));
-                        np.count++;
-                    }
-                    input.network.resetOperabilities(a);
-                }
-            }
-        }
     }
 
     private void  buildTree(Input input) {
         for(int a = 0; a < input.iConfig.inputQueues.size(); a++) {
             if (input.iConfig.inputQueues.get(a).containsTargetAnalysis(AnalysesForm.ATTACK)) {
                 input.network.analysisDataHolders.get(a).attackTreeBuilder = new AttackTreeBuilder(
-                        input.network.analysisDataHolders.get(a).attackPoints,
                         input.decisionTree,
                         DECISION_OPTION,
                         USE_BUDGET,
                         BUDGET,
                         INCLUDE_TEXT_STOP,
-                        INCLUDE_MATH_STOP);
-                input.network.analysisDataHolders.get(a).attackTreeBuilder.buildTree();
+                        INCLUDE_MATH_STOP,
+                        input,
+                        (int) MAX_POINTS,
+                        targetType);
+                input.network.analysisDataHolders.get(a).attackTreeBuilder.buildTree(a);
             }
         }
     }

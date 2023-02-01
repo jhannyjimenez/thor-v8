@@ -30,6 +30,8 @@ public class AttackChain {
         return this.decisions.get(index);
     }
 
+    public void removeDecision(Decision decision) {decisions.remove(decision);}
+
     public int getAccumulatedCost(){
         return this.accumulatedCost;
     }
@@ -85,10 +87,13 @@ public class AttackChain {
         return true;
     }
 
+    public boolean isEmpty() {
+        return decisions.isEmpty() && routes.isEmpty();
+    }
+
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof AttackChain){
-            AttackChain chain = (AttackChain) obj;
+        if(obj instanceof AttackChain chain){
             if(this.getDecisionsSize() != chain.getDecisionsSize() || this.getRoutesSize() != chain.getRoutesSize())
                 return false;
             return chainHasMatchingDecisionAndRoutes(chain);

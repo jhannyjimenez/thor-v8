@@ -142,7 +142,12 @@ public class StandardInput extends Input {
         }
 
         if(iConfig.containsAnalysis(AnalysesForm.ATTACK)){
-            super.readAttackTree();
+            correcter.findAttackChainErrors();
+            if (correcter.errors.isEmpty()) {
+                super.readAttackTree();
+            } else {
+                correcter.printErrors(true);
+            }
         }
 
         super.network.addNetworkAnalysisDataHolders(true);

@@ -7,6 +7,8 @@ import org.mitre.thor.analyses.data_holders.NetworkAnalysisDataHolder;
 import org.mitre.thor.analyses.data_holders.NetworkCriticalityTrial;
 import org.mitre.thor.analyses.data_holders.NodeAnalysisDataHolder;
 import org.mitre.thor.analyses.data_holders.NodeCriticalityTrial;
+import org.mitre.thor.network.attack.AttackChain;
+import org.mitre.thor.network.attack.Route;
 import org.mitre.thor.network.links.ActivityLink;
 import org.mitre.thor.network.links.FactorLink;
 import org.mitre.thor.network.links.GroupLink;
@@ -772,12 +774,18 @@ public class Network implements Cloneable{
      * @param targetActivity the starting Activity
      */
     public void findNetworkOrder(Activity targetActivity){
+        networkOrder.clear();
+        clearIteratedNodes();
+        networkOrderHelper(targetActivity);
+    }
+
+    private void networkOrderHelper(Activity targetActivity) {
         if(childrenActivitiesAreIterated(targetActivity) && !networkOrder.contains(targetActivity)){
             networkOrder.add(targetActivity);
             iterated.add(targetActivity);
             ArrayList<Activity> aParents = getActivitiesParents(targetActivity);
             for(Activity parent : aParents){
-                findNetworkOrder(parent);
+                networkOrderHelper(parent);
             }
         }
     }
@@ -1083,6 +1091,14 @@ public class Network implements Cloneable{
         }
         for(Activity a : getActivities()){
             a.SE = Double.NaN;
+        }
+    }
+
+    public void setAttackChainOperabilities(AttackChain chain, int rollUpIndex) {
+        for (int i = 0; i < chain.getRoutesSize(); i++) {
+            if (chain.getRoute(i).getTargetNode() != null) {
+                chain.getRoute(i).getTargetNode().setOperability(rollUpIndex, chain.getRoute(i).getOperability());
+            }
         }
     }
 

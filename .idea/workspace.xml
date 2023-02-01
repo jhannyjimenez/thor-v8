@@ -4,9 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1ea0a756-0080-4801-9821-4ef4c45cf6c6" name="Changes" comment="">
+    <list default="true" id="1ea0a756-0080-4801-9821-4ef4c45cf6c6" name="Changes" comment="8.0 - Changed project gradle version to 8.0">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/input_correcter/InputCorrecter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/input_correcter/InputCorrecter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/AttackAnalysis.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/AttackAnalysis.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/data_holders/NetworkAnalysisDataHolder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/data_holders/NetworkAnalysisDataHolder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/Input.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/Input.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/formats/StandardInput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/formats/StandardInput.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/Network.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/Network.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackChain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackChain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackPoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackPoint.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackTreeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackTreeBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/DecisionTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/DecisionTree.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/output/Output.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/output/Output.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +54,13 @@
       </state>
     </system>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -64,24 +82,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "dart.analysis.tool.window.visible": "false",
-    "last_opened_file_path": "C:/Users/JHANNY/Documents/Java/thor/src/main/java",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "project.structure.last.edited": "Problems",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "show.migrate.to.gradle.popup": "false",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/JHANNY/Documents/Java/thor/src/main/java&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\JHANNY\Documents\Java\thor\src\main\java" />
@@ -134,11 +152,44 @@
       <workItem from="1674592658721" duration="2721000" />
       <workItem from="1674595580919" duration="2261000" />
       <workItem from="1674665739020" duration="467000" />
-      <workItem from="1674666462239" duration="203000" />
+      <workItem from="1674666462239" duration="14008000" />
+      <workItem from="1674768181480" duration="2993000" />
+      <workItem from="1674774565767" duration="969000" />
+      <workItem from="1675101657678" duration="12521000" />
+      <workItem from="1675186153991" duration="6903000" />
+      <workItem from="1675278378524" duration="4134000" />
     </task>
+    <task id="LOCAL-00001" summary="8.0 - Changed project gradle version to 8.0">
+      <created>1674666713164</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1674666713164</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="8.0 - Changed project gradle version to 8.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="8.0 - Changed project gradle version to 8.0" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/mitre/thor/input/Input.java</url>
+          <line>735</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="GradleRunConfiguration">
+        <watch expression="decisionTree" language="JAVA" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

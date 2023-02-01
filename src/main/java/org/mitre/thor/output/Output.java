@@ -952,6 +952,7 @@ public abstract class Output {
         decisionTreeSheet.setColumnWidth(2, 600 * 15);
     }
 
+    /*
     protected void graphAttackChain(int rollUpIndex){
         ScatterPlotter attacKGraph = new ScatterPlotter();
         attacKGraph.setLineChartTitle("Impact per Cost");
@@ -1024,6 +1025,7 @@ public abstract class Output {
 
         Platform.runLater(attacKGraph::show);
     }
+     */
 
     private void graphWriteCoolGraph(List<Integer> divisions, List<int[]> divisionColors, int rollUpI, String rollUpName, CGOrderingMethod method){
         CGAnalysis CGA = (CGAnalysis)input.iConfig.getAnalysis(AnalysesForm.CG);
