@@ -112,7 +112,7 @@ public class AttackTreeBuilder {
         return link;
     }
 
-    public String getToolTipMathematicaCode(){
+    public String getMathematicaCode(boolean full){
         double root = Math.sqrt(nodes.size());
         double multiplier = 1.0;
         double defaultSize = multiplier * ((Math.log10(root) / 10) * root);
@@ -148,76 +148,20 @@ public class AttackTreeBuilder {
         stringBuilder.append(graphLayout)
                 .append("VertexLabels -> {");
         for(DecisionNode node : usedNodes){
-            stringBuilder.append("\"")
-                    .append(node.uid)
-                    .append("\" -> Placed[\"")
-                    .append(node)
-                    .append("\",Tooltip], ");
-        }
-        stringBuilder.deleteCharAt(stringBuilder.length() - 1).deleteCharAt(stringBuilder.length() - 1);
-        stringBuilder.append("},\n VertexStyle -> {")
-                .append("White}")
-                .append(",\n VertexSize -> {")
-                .append("scale},\n ");
-
-        stringBuilder.append("EdgeLabels -> {");
-        for(DecisionLink link : usedLinks){
-            stringBuilder.append("(\"")
-                    .append(link.childNode.uid)
-                    .append("\" -> \"")
-                    .append(link.parentNode.uid)
-                    .append("\") -> Placed[\"")
-                    .append(link)
-                    .append("\",Tooltip], ");
-        }
-        stringBuilder.deleteCharAt(stringBuilder.length() - 1).deleteCharAt(stringBuilder.length() - 1);
-        stringBuilder.append("}]");
-
-        return stringBuilder.toString();
-    }
-
-    public String getSimplifiedMathematicaCode(){
-        double root = Math.sqrt(nodes.size());
-        double multiplier = 1.0;
-        double defaultSize = multiplier * ((Math.log10(root) / 10) * root);
-
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("data = {");
-
-        ArrayList<DecisionNode> usedNodes = new ArrayList<>();
-        ArrayList<DecisionLink> usedLinks = new ArrayList<>();
-
-        for(DecisionLink link : links){
-            if(INCLUDE_MATH_STOP || (!stopNodes.contains(link.childNode) && !stopNodes.contains(link.parentNode))){
-                stringBuilder.append("\"").append(link.childNode.uid).append("\" -> \"").append(link.parentNode.uid).append("\", ");
-                if(!usedLinks.contains(link)){
-                    usedLinks.add(link);
-                }
-                if(!usedNodes.contains(link.childNode)){
-                    usedNodes.add(link.childNode);
-                }
-                if(!usedNodes.contains(link.parentNode)){
-                    usedNodes.add(link.parentNode);
-                }
+            if (full) {
+                stringBuilder.append("\"")
+                        .append(node.uid)
+                        .append("\" -> Placed[\"")
+                        .append(node)
+                        .append("\",Tooltip], ");
+            }else {
+                stringBuilder.append("\"")
+                        .append(node.uid)
+                        .append("\" -> \"")
+                        .append(node.rdLabel)
+                        .append("\", ");
             }
         }
-
-        stringBuilder.deleteCharAt(stringBuilder.length() - 1).deleteCharAt(stringBuilder.length() - 1).append("}; \n");
-        stringBuilder.append("scale = ").append(defaultSize).append(";\n")
-                .append("medSize = scale * 1.3;\n")
-                .append("largeSize = scale * 1.6;\n")
-                .append("g = LayeredGraphPlot[data,\n ");
-
-        String graphLayout = "GraphLayout -> {\"LayeredDigraphEmbedding\", \"Orientation\" -> Left},\n ";
-        stringBuilder.append(graphLayout)
-                .append("VertexLabels -> {");
-        for(DecisionNode node : usedNodes){
-            stringBuilder.append("\"")
-                    .append(node.uid)
-                    .append("\" -> \"")
-                    .append(node.rdLabel)
-                    .append("\", ");
-        }
         stringBuilder.deleteCharAt(stringBuilder.length() - 1).deleteCharAt(stringBuilder.length() - 1);
         stringBuilder.append("},\n VertexStyle -> {")
                 .append("White}")
@@ -226,13 +170,23 @@ public class AttackTreeBuilder {
 
         stringBuilder.append("EdgeLabels -> {");
         for(DecisionLink link : usedLinks){
-            stringBuilder.append("(\"")
-                    .append(link.childNode.uid)
-                    .append("\" -> \"")
-                    .append(link.parentNode.uid)
-                    .append("\") -> \"")
-                    .append(link.name)
-                    .append("\", ");
+            if (full) {
+                stringBuilder.append("(\"")
+                        .append(link.childNode.uid)
+                        .append("\" -> \"")
+                        .append(link.parentNode.uid)
+                        .append("\") -> Placed[\"")
+                        .append(link)
+                        .append("\",Tooltip], ");
+            } else {
+                stringBuilder.append("(\"")
+                        .append(link.childNode.uid)
+                        .append("\" -> \"")
+                        .append(link.parentNode.uid)
+                        .append("\") -> \"")
+                        .append(link.name)
+                        .append("\", ");
+            }
         }
         stringBuilder.deleteCharAt(stringBuilder.length() - 1).deleteCharAt(stringBuilder.length() - 1);
         stringBuilder.append("}]");

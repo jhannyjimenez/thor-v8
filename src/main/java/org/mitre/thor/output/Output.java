@@ -942,8 +942,8 @@ public abstract class Output {
         B2.setCellStyle(outputStyle);
         XSSFCell C2 = valueRow.createCell(2);
         C2.setCellStyle(outputStyle);
-        A2.setCellValue(attackTreeBuilder.getSimplifiedMathematicaCode());
-        B2.setCellValue(attackTreeBuilder.getToolTipMathematicaCode());
+        A2.setCellValue(attackTreeBuilder.getMathematicaCode(false));
+        B2.setCellValue(attackTreeBuilder.getMathematicaCode(true));
         C2.setCellValue(attackTreeBuilder.getTextTreeString());
         valueRow.setHeight((short) (100 * 15));
 
