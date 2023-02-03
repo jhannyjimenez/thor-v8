@@ -559,26 +559,27 @@ public class InputCorrecter {
         for(int i = 0; i < numOfRows; i++){
             XSSFRow iRow = routesSheet.getRow(i + 1);
             if (validateRow(iRow, i + 1, "Decision ID, Route ID, Probability of Success")) {
+                int dId = -1;
                 XSSFCell decisionIdCell = iRow.getCell(0);
                 if (validateCell(decisionIdCell, 0, i + 1, "Routes", "Decision ID", true)) {
-                    int dId = (int) decisionIdCell.getNumericCellValue();
+                    dId = (int) decisionIdCell.getNumericCellValue();
                     if (!decisionTree.containsDecision(dId)) {
                         throwError("Could not find a decision with id: " + dId + ", in the 'Decisions'");
                         throwError("\tPlease fix cell " + integerToAlphabetic(0) + "" + (i + 2) + " in the 'Routes' sheet");
                     }
                 }
                 XSSFCell routeIdCell = iRow.getCell(1);
-                validateCell(routeIdCell, 1, i + 1, "Routes", "Route ID", true);
+                int rId = validateCell(routeIdCell, 1, i + 1, "Routes", "Route ID", true) ? (int) routeIdCell.getNumericCellValue() : -1;
                 XSSFCell probSuccessCell = iRow.getCell(2);
+                double prob = -1;
                 if (validateCell(probSuccessCell, 2, i + 1, "Routes", "Probability of Success", true)) {
-                    double prob = probSuccessCell.getNumericCellValue();
+                    prob = probSuccessCell.getNumericCellValue();
                     clampCellValue(prob,2, i + 1, "Routes", 0, 1);
                 }
                 XSSFCell nodeNameCell = iRow.getCell(3);
                 XSSFCell operabilityCell = iRow.getCell(4);
 
                 String nodeName = nodeNameCell != null ? nodeNameCell.toString() : "";
-
                 if (!nodeName.isBlank() && !nodeName.isEmpty()) {
                     Node node = input.network.getNode(nodeName);
                     if (node == null) {
@@ -592,6 +593,19 @@ public class InputCorrecter {
                         }
                     }
                 }
+
+                decisionTree.addRoute(new Route(dId, rId, prob, null, 0.0, ""));
+            }
+        }
+        for (Decision d : decisionTree.getDecisions()) {
+            double prob = 0.0;
+            for (Route r : decisionTree.getRouteOptions(d.getId())) {
+                prob += r.getProbSuccess();
+            }
+            if (prob < 0.9999 || prob > 1.0001) {
+                throwError("The probabilities of the routes belonging to the decision with id: " + d.getId());
+                throwError("\tdo not add up to 1. They add up to: " + prob);
+                throwError("\tplease fix this in the 'Routes' sheet");
             }
         }
         if (opAt100) {

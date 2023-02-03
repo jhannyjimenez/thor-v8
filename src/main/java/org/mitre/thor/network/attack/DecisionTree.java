@@ -183,6 +183,10 @@ public class DecisionTree {
         return false;
     }
 
+    public ArrayList<Decision> getDecisions() {
+        return new ArrayList<>(this.decisions);
+    }
+
     public void clear(){
         routes.clear();
         decisions.clear();

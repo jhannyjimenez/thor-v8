@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1ea0a756-0080-4801-9821-4ef4c45cf6c6" name="Changes" comment="8.0.1 - Added input error detection for attack analysis input">
+    <list default="true" id="1ea0a756-0080-4801-9821-4ef4c45cf6c6" name="Changes" comment="8.0.2 - Attack Mathematica output code is more concise">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackTreeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackTreeBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/output/Output.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/output/Output.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/input_correcter/InputCorrecter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/input_correcter/InputCorrecter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/DecisionTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/DecisionTree.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,6 +32,17 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="thor-v8" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="thor-v8" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="thor-v8" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="shadow" type="c8890929:TasksNode$1" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
@@ -100,7 +111,7 @@
       <recent name="C:\Users\JHANNY\Documents\Java\thor\src\main\resources" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Gradle.thor [run]">
     <configuration name="thor [run]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -122,9 +133,31 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
+    <configuration name="thor-v8 [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="shadowJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.thor [run]" />
+        <item itemvalue="Gradle.thor-v8 [shadowJar]" />
       </list>
     </recent_temporary>
   </component>
@@ -152,7 +185,9 @@
       <workItem from="1675186153991" duration="6903000" />
       <workItem from="1675278378524" duration="6029000" />
       <workItem from="1675287611898" duration="18000" />
-      <workItem from="1675287642570" duration="103000" />
+      <workItem from="1675287642570" duration="2912000" />
+      <workItem from="1675293519139" duration="481000" />
+      <workItem from="1675460553163" duration="1501000" />
     </task>
     <task id="LOCAL-00001" summary="8.0 - Changed project gradle version to 8.0">
       <created>1674666713164</created>
@@ -168,7 +203,21 @@
       <option name="project" value="LOCAL" />
       <updated>1675282569121</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="8.0.2 - Fixed Attack Analysis Simple Mathematica Output">
+      <created>1675287783659</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1675287783659</updated>
+    </task>
+    <task id="LOCAL-00004" summary="8.0.2 - Attack Mathematica output code is more concise">
+      <created>1675288060698</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1675288060698</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -177,7 +226,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="8.0 - Changed project gradle version to 8.0" />
     <MESSAGE value="8.0.1 - Added input error detection for attack analysis input" />
-    <option name="LAST_COMMIT_MESSAGE" value="8.0.1 - Added input error detection for attack analysis input" />
+    <MESSAGE value="8.0.2 - Fixed Attack Analysis Simple Mathematica Output" />
+    <MESSAGE value="8.0.2 - Attack Mathematica output code is more concise" />
+    <option name="LAST_COMMIT_MESSAGE" value="8.0.2 - Attack Mathematica output code is more concise" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
