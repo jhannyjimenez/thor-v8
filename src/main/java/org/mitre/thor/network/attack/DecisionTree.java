@@ -86,7 +86,7 @@ public class DecisionTree {
     private Decision advanceDecision(AttackChain chain, Decision targetDecision) {
         Route chosenRoute = getNextRoute(targetDecision);
         chain.addRoute(chosenRoute);
-        return getNextDecision(chain, chosenRoute);
+        return getNextDecision(chain);
     }
 
     public ArrayList<Decision> getStartDecisions(){
@@ -99,10 +99,10 @@ public class DecisionTree {
         return out;
     }
 
-    public ArrayList<Decision> getDecisionOptions(Route route, AttackChain chain){
+    public ArrayList<Decision> getDecisionOptions(AttackChain chain){
         ArrayList<Decision> out = new ArrayList<>();
         for(Decision decision : decisions){
-            if(decision.getReqRule().isOption(decision, route, chain)){
+            if(decision.getReqRule().isOption(decision, chain)){
                 out.add(decision);
             }
         }
@@ -119,8 +119,8 @@ public class DecisionTree {
         return out;
     }
 
-    public Decision getNextDecision(AttackChain chain, Route route){
-        ArrayList<Decision> decisionOptions = getDecisionOptions(route, chain);
+    public Decision getNextDecision(AttackChain chain){
+        ArrayList<Decision> decisionOptions = getDecisionOptions(chain);
         ArrayList<Decision> finalOptions = new ArrayList<>();
         for (Decision option : decisionOptions) {
             if (!chain.containsDecision(option)) {

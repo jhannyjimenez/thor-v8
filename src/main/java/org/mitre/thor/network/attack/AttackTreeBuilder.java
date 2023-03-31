@@ -264,8 +264,8 @@ public class AttackTreeBuilder {
 
     public void buildTree(int rollUpI){
         textTree.clear(); stopNodes.clear(); nodes.clear(); links.clear(); tabCount = 0;
-        buildTreeLayer(decisionTree.getStartDecisions(), addNode( 0.0, Double.NaN, 0.0 , "", "", null), new AttackChain(), 0, rollUpI, new ArrayList<>());
-        trimStops();
+        buildTreeLayer(decisionTree.getStartDecisions(), addNode( 0.0, Double.NaN, 0.0 , "", "", null), new AttackChain(), 0, rollUpI, new ArrayList<>(), 0.0);
+        //trimStops();
         calculateRealImpacts();
         this.textTreeString = formTextTree();
     }
@@ -305,7 +305,12 @@ public class AttackTreeBuilder {
         return this.textTreeString;
     }
 
-    private void buildTreeLayer(ArrayList<Decision> options, DecisionNode node, AttackChain currentPath, int depth, int rollUpI, ArrayList<AttackPoint> attackPoints){
+    private void buildTreeLayer(ArrayList<Decision> options, DecisionNode node, AttackChain currentPath, int depth, int rollUpI, ArrayList<AttackPoint> attackPoints, double prevBestDecisionVal){
+        if (prevBestDecisionVal == 100.0) {
+            addStopNode(node, currentPath, attackPoints, rollUpI, depth);
+            return;
+        }
+
         ArrayList<AttackPoint> newSimulations = decisionTree.simulateAttackPoints(input, currentPath, rollUpI, maxPoints / (depth + 1), targetType);
         for (AttackPoint point : newSimulations) {
             if (attackPoints.contains(point)) {
@@ -317,7 +322,7 @@ public class AttackTreeBuilder {
         // If there are still options left, get the best decision and the impact it has on the goal
         Pair<Decision, Double> bestDecision = !options.isEmpty() ? getBestDecision(options, currentPath, attackPoints) : null;
         // Only continue if there is valid possible decision
-        if(bestDecision != null && bestDecision.getKey() != null && bestDecision.getValue() != 100.0){
+        if(bestDecision != null && bestDecision.getKey() != null){
             // Calculate the new accumulated cost
             double nAC = currentPath.getAccumulatedCost() + bestDecision.getKey().getCost();
             // Break up the decision and impact into two separate variables
@@ -336,30 +341,34 @@ public class AttackTreeBuilder {
             for(ValuedRoute route : valuedRoutes){
                 // Continue to the next layer
                 DecisionNode newNode = graphTree(route.getRoute(), chosenDecision, node, nAC, emo, depth, route.getValue());
-                continueBuildingTree(route.getRoute(), newNode, currentPath, depth, rollUpI, attackPoints);
+                continueBuildingTree(route.getRoute(), newNode, currentPath, depth, rollUpI, attackPoints, bestDecision.getValue());
             }
         }else{
-            // Configure the text tree to stop
-            treeStopped = true;
-            stopNodes.add(node);
-            node.rdLabel = "end";
-            node.rdComment = "Stop Tree";
-            node.ac = currentPath.getAccumulatedCost();
-            node.cost = 0.0;
-            double mi = getExactChainValue(currentPath, attackPoints, rollUpI);
-            node.rmi = mi;
-            node.ami = mi;
-
-            textTree.addLine(node ,depth + tabCount);
+            addStopNode(node, currentPath, attackPoints, rollUpI, depth);
         }
     }
 
-    private void continueBuildingTree(Route route, DecisionNode newNode, AttackChain currentPath, int depth, int rollUpI, ArrayList<AttackPoint> attackPoints){
+    private void addStopNode(DecisionNode node, AttackChain currentPath, ArrayList<AttackPoint> attackPoints, int rollUpI, int depth){
+        // Configure the text tree to stop
+        treeStopped = true;
+        stopNodes.add(node);
+        node.rdLabel = "end";
+        node.rdComment = "Stop Tree";
+        node.ac = currentPath.getAccumulatedCost();
+        node.cost = 0.0;
+        double mi = getExactChainValue(currentPath, attackPoints, rollUpI);
+        node.rmi = mi;
+        node.ami = mi;
+
+        textTree.addLine(node ,depth + tabCount);
+    }
+
+    private void continueBuildingTree(Route route, DecisionNode newNode, AttackChain currentPath, int depth, int rollUpI, ArrayList<AttackPoint> attackPoints, double prevBDV){
         AttackChain newPath = currentPath.clone();
         newPath.addRoute(route);
         int nDepth = depth + this.tabCount; this.tabCount = 0;
 
-        ArrayList<Decision> options = decisionTree.getDecisionOptions(route, currentPath);
+        ArrayList<Decision> options = decisionTree.getDecisionOptions(newPath);
         ArrayList<Decision> finalOptions = new ArrayList<>();
         for (Decision option : options) {
             if (!newPath.containsDecision(option)){
@@ -367,7 +376,7 @@ public class AttackTreeBuilder {
             }
         }
 
-        buildTreeLayer(finalOptions, newNode, newPath, nDepth, rollUpI, attackPoints);
+        buildTreeLayer(finalOptions, newNode, newPath, nDepth, rollUpI, attackPoints, prevBDV);
     }
 
     private DecisionNode graphTree(Route route, Decision decision, DecisionNode preNode, double ac, double ami, int depth, double routeAMI){
@@ -378,7 +387,7 @@ public class AttackTreeBuilder {
         preNode.ami = ami;
         preNode.cost = decision.getCost();
         preNode.decision = decision;
-        DecisionLink newLink = addLink(String.valueOf(route.getId()), route.getComment(), preNode, newNode, route.getProbSuccess(), routeAMI, route);
+        DecisionLink newLink = addLink(String.valueOf(route.getFullId()), route.getComment(), preNode, newNode, route.getProbSuccess(), routeAMI, route);
 
         //Text tree
         if(!treeStopped){
@@ -521,11 +530,11 @@ public class AttackTreeBuilder {
         hLine = appendValueIntoString(hLine, thirdIndex, "RMI", maxRMILength);
         hLine = appendValueIntoString(hLine, fourthIndex, "AMI", maxAMILength);
         hLine = appendValueIntoString(hLine, fifthIndex, "PROB", maxProbLength);
-        hLine = hLine.substring(0, end) + "|";
+        hLine = hLine.substring(0, end + 1) + "|";
 
         StringBuilder out = new StringBuilder();
-        String FullUnderScoreLine = fillStringUpToChar(end + 1, '_');
-        String InsideUnderScoreLine = "|" + fillStringUpToChar(end - 1, '_') + "|";
+        String FullUnderScoreLine = fillStringUpToChar(end + 2, '_');
+        String InsideUnderScoreLine = "|" + fillStringUpToChar(end, '_') + "|";
         out.append(FullUnderScoreLine).append("\n");
         out.append(hLine).append("\n");
         out.append(InsideUnderScoreLine).append("\n");

@@ -4,26 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1ea0a756-0080-4801-9821-4ef4c45cf6c6" name="Changes" comment="8.0.3 - THOR checks if the routes of a decision have a total possibility of 1">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AndReqRule.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/IReqRule.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/OrReqRule.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/RequirementsRule.java" afterDir="false" />
+    <list default="true" id="1ea0a756-0080-4801-9821-4ef4c45cf6c6" name="Changes" comment="8.0.8">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/input_correcter/InputCorrecter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/input_correcter/InputCorrecter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/ConsoleArgument.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/ConsoleArgument.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/AttackAnalysis.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/AttackAnalysis.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/crit/RandomPossibilities.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/analyses/crit/RandomPossibilities.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/Input.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/Input.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/formats/StandardInput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/input/formats/StandardInput.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackChain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackChain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AndReqRule.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AndReqRule.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackTreeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackTreeBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/Decision.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/Decision.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/DecisionTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/DecisionTree.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/nodes/Node.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/nodes/Node.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/output/Output.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/output/Output.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/IReqRule.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/IReqRule.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/OrReqRule.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/OrReqRule.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/RequirementsRule.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/RequirementsRule.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,7 +121,7 @@
     <configuration name="ExportBinaries" type="BatchConfigurationType" factoryName="Batch" temporary="true">
       <module name="THOR" />
       <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../thor-v8" />
+      <option name="WORKING_DIRECTORY" value="C:\Users\casua\IdeaProjects\THOR" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SCRIPT_NAME" value="ExportBinaries.bat" />
       <option name="PARAMETERS" value="" />
@@ -227,7 +216,7 @@
       <workItem from="1680045425894" duration="2432000" />
       <workItem from="1680094866735" duration="9549000" />
       <workItem from="1680289555221" duration="1959000" />
-      <workItem from="1680292186814" duration="1594000" />
+      <workItem from="1680292186814" duration="7327000" />
     </task>
     <task id="LOCAL-00001" summary="8.0 - Changed project gradle version to 8.0">
       <created>1674666713164</created>
@@ -264,19 +253,29 @@
       <option name="project" value="LOCAL" />
       <updated>1675462711197</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="8.0.8">
+      <created>1680295023109</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1680295023109</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
     <MESSAGE value="8.0 - Changed project gradle version to 8.0" />
     <MESSAGE value="8.0.1 - Added input error detection for attack analysis input" />
     <MESSAGE value="8.0.2 - Fixed Attack Analysis Simple Mathematica Output" />
     <MESSAGE value="8.0.2 - Attack Mathematica output code is more concise" />
     <MESSAGE value="8.0.3 - THOR checks if the routes of a decision have a total possibility of 1" />
-    <option name="LAST_COMMIT_MESSAGE" value="8.0.3 - THOR checks if the routes of a decision have a total possibility of 1" />
+    <MESSAGE value="8.0.8" />
+    <option name="LAST_COMMIT_MESSAGE" value="8.0.8" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -297,16 +296,19 @@
           <option name="timeStamp" value="17" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/DecisionTree.java</url>
-          <line>75</line>
-          <option name="timeStamp" value="18" />
+          <url>file://$PROJECT_DIR$/src/main/java/org/mitre/thor/network/attack/AttackTreeBuilder.java</url>
+          <line>269</line>
+          <option name="timeStamp" value="30" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
       <configuration name="GradleRunConfiguration">
-        <watch expression="finalRequirements" language="JAVA" />
-        <watch expression="decisions" language="JAVA" />
+        <watch expression="currentPath" language="JAVA" />
+        <watch expression="attackPoints" language="JAVA" />
+        <watch expression="newPath" language="JAVA" />
+        <watch expression="finalOptions" language="JAVA" />
+        <watch expression="formTextTree()" language="JAVA" />
       </configuration>
     </watches-manager>
   </component>

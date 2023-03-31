@@ -6,8 +6,8 @@ public enum RequirementsRule {
 
     private final IReqRule reqRule;
 
-    public boolean isOption(Decision decision, Route route, AttackChain chain) {
-        return this.reqRule.isOption(decision, route, chain);
+    public boolean isOption(Decision decision, AttackChain chain) {
+        return this.reqRule.isOption(decision, chain);
     }
 
     RequirementsRule(IReqRule reqRule){
