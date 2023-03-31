@@ -92,17 +92,17 @@ public class DecisionTree {
     public ArrayList<Decision> getStartDecisions(){
         ArrayList<Decision> out = new ArrayList<>();
         for(Decision decision : decisions){
-            if(decision.getRequirement() == null || decision.getRequirement().isEmpty() || decision.getRequirement().isBlank()){
+            if(decision.getRequirements().isEmpty()){
                 out.add(decision);
             }
         }
         return out;
     }
 
-    public ArrayList<Decision> getDecisionOptions(Route route){
+    public ArrayList<Decision> getDecisionOptions(Route route, AttackChain chain){
         ArrayList<Decision> out = new ArrayList<>();
         for(Decision decision : decisions){
-            if(decision.getRequirement() == null || decision.getRequirement().isEmpty() || decision.getRequirement().isBlank() || decision.getRequirement().equals(route.getFullId())){
+            if(decision.getReqRule().isOption(decision, route, chain)){
                 out.add(decision);
             }
         }
@@ -120,7 +120,7 @@ public class DecisionTree {
     }
 
     public Decision getNextDecision(AttackChain chain, Route route){
-        ArrayList<Decision> decisionOptions = getDecisionOptions(route);
+        ArrayList<Decision> decisionOptions = getDecisionOptions(route, chain);
         ArrayList<Decision> finalOptions = new ArrayList<>();
         for (Decision option : decisionOptions) {
             if (!chain.containsDecision(option)) {

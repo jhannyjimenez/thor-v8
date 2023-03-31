@@ -10,7 +10,7 @@ import java.util.*;
 public class AttackAnalysis extends Analysis {
 
     public final DecisionOption DECISION_OPTION;
-    public final double MAX_POINTS;
+    public final double SIMULATIONS;
     public final boolean USE_BUDGET;
     public final double BUDGET;
     public final boolean INCLUDE_TEXT_STOP;
@@ -18,11 +18,11 @@ public class AttackAnalysis extends Analysis {
 
 
 
-    public AttackAnalysis(List<RollUpEnum> rollUpRules, double maxMinutes, boolean useBudget, double budget,
+    public AttackAnalysis(List<RollUpEnum> rollUpRules, double simulations, boolean useBudget, double budget,
                           DecisionOption option, boolean includeTextStop, boolean includeMathStop) {
         super(AnalysesForm.ATTACK);
         super.rollUpRules = rollUpRules;
-        this.MAX_POINTS = maxMinutes;
+        this.SIMULATIONS = simulations;
         this.USE_BUDGET = useBudget;
         this.BUDGET = budget;
         this.DECISION_OPTION = option;
@@ -50,7 +50,7 @@ public class AttackAnalysis extends Analysis {
                         INCLUDE_TEXT_STOP,
                         INCLUDE_MATH_STOP,
                         input,
-                        (int) MAX_POINTS,
+                        (int) SIMULATIONS,
                         targetType);
                 input.network.analysisDataHolders.get(a).attackTreeBuilder.buildTree(a);
             }

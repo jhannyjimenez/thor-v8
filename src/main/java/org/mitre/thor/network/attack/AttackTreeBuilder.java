@@ -359,7 +359,7 @@ public class AttackTreeBuilder {
         newPath.addRoute(route);
         int nDepth = depth + this.tabCount; this.tabCount = 0;
 
-        ArrayList<Decision> options = decisionTree.getDecisionOptions(route);
+        ArrayList<Decision> options = decisionTree.getDecisionOptions(route, currentPath);
         ArrayList<Decision> finalOptions = new ArrayList<>();
         for (Decision option : options) {
             if (!newPath.containsDecision(option)){

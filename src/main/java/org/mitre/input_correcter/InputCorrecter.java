@@ -10,6 +10,7 @@ import org.mitre.thor.logger.CoreLogger;
 import org.mitre.thor.input.Input;
 import org.mitre.thor.network.attack.Decision;
 import org.mitre.thor.network.attack.DecisionTree;
+import org.mitre.thor.network.attack.RequirementsRule;
 import org.mitre.thor.network.attack.Route;
 import org.mitre.thor.network.nodes.Activity;
 import org.mitre.thor.analyses.AnalysesForm;
@@ -83,6 +84,7 @@ public class InputCorrecter {
             int groupRuleColumn = -1;
             int factorRuleColumn = -1;
             int seColumn = -1;
+            int offChanceColumn = -1;
             boolean setNamingMethod = false;
             boolean usingNames = true;
 
@@ -123,6 +125,8 @@ public class InputCorrecter {
                         timeColumns.add(i);
                     }else if(headerCell.getStringCellValue().equalsIgnoreCase("se")){
                         seColumn = i;
+                    }else if(headerCell.getStringCellValue().toLowerCase().contains("off")){
+                        offChanceColumn = i;
                     }
                 }
 
@@ -267,6 +271,12 @@ public class InputCorrecter {
                         if(bCell != null && isCellEmpty(bCell)){
                             String msg = "The cell at " + integerToAlphabetic(bColumn) + (i + 2) + " 'Dependencies Sheet' is blank - supposed to contain linear regression b value";
                             throwError(msg);
+                        }
+                        if (offChanceColumn >= 0) {
+                            XSSFCell offChance =  row.getCell(offChanceColumn);
+                             if (validateCell(offChance, offChanceColumn, i + 1, "Dependencies", "Off Chance", true )){
+                                 clampCellValue(offChance.getNumericCellValue(), offChanceColumn, i + 1, "Dependencies", 0, 1);
+                             }
                         }
                     }
 
@@ -541,12 +551,12 @@ public class InputCorrecter {
             XSSFRow iRow = decisionSheet.getRow(i + 1);
             if (validateRow(iRow, i + 1, "ID, Requirement, Cost, Description")) {
                 XSSFCell idCell = iRow.getCell(0);validateCell(idCell, 0, i + 1, "Decisions", "ID", true);
-                XSSFCell costCell = iRow.getCell(2);
+                XSSFCell costCell = iRow.getCell(3);
                 validateCell(costCell, 2, i + 1, "Decisions", "Cost", true);
 
                 int id = idCell != null ? (int) idCell.getNumericCellValue() : -1;
                 double cost = costCell != null ? costCell.getNumericCellValue() : 0;
-                decisionTree.addDecision(new Decision(id, "", cost, ""));
+                decisionTree.addDecision(new Decision(id, new ArrayList<>(), RequirementsRule.OR, cost, ""));
             }
         }
 

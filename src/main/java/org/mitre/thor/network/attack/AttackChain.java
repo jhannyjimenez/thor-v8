@@ -65,6 +65,15 @@ public class AttackChain {
         return routes.contains(r);
     }
 
+    public boolean containsRouteFullID(String rID) {
+        for (Route r : routes) {
+            if (r.getFullId().equals(rID)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean containsChain(AttackChain chain){
         if (this.getDecisionsSize() < chain.getDecisionsSize() || this.getRoutesSize() < chain.getRoutesSize())
             return false;

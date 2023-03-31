@@ -19,7 +19,9 @@ public enum ConsoleArgument {
     CG_ORDERING("ordering", false),
     CG_SAVE_IMG("saveimg", false),
     GROUPING("grouping", false),
-    ANALYSIS_TARGET("target", false);
+    ANALYSIS_TARGET("target", false),
+    BUDGET("budget", false),
+    SIMULATIONS("simulations", false);
 
     public final String name;
     public final boolean required;

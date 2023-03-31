@@ -2,17 +2,15 @@ package org.mitre.thor;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.mitre.thor.analyses.*;
 import org.mitre.thor.logger.CoreLogger;
 import org.mitre.thor.input.InputForm;
-import org.mitre.thor.analyses.Analysis;
-import org.mitre.thor.analyses.CGAnalysis;
-import org.mitre.thor.analyses.CriticalityAnalysis;
-import org.mitre.thor.analyses.OperabilityAnalysis;
 import org.mitre.thor.analyses.cg.ColorSet;
 import org.mitre.thor.analyses.grouping.Grouping;
 import org.mitre.thor.analyses.cg.CGOrderingMethod;
 import org.mitre.thor.analyses.crit.PhiCalculationEnum;
 import org.mitre.thor.analyses.rolluprules.RollUpEnum;
+import org.mitre.thor.network.attack.DecisionOption;
 import org.mitre.thor.output.OutputForm;
 import org.mitre.thor.analyses.target.TargetType;
 
@@ -63,7 +61,7 @@ public class Main {
                 printSupportedArguments(arguments);
                 System.out.println("The minimum requirements are: filepath, rule, analysis");
                 System.out.println("The available rules are: or, and, fdna, fdna2, odinn, custom");
-                System.out.println("The available analysis are: criticality, operability, cg");
+                System.out.println("The available analysis are: criticality, operability, cg, attack");
                 System.out.println("The available calcmethod are: all, random, fdna");
                 System.out.println("The available grouping are: single, pairs, and triples");
                 System.out.println("The available targets are: nodes, factors");
@@ -72,6 +70,8 @@ public class Main {
                 System.out.println("The -filepath flag should be followed by a string of the absolute path of the input file");
                 System.out.println("The -maxminutes flag should be followed by an integer indicating the max amount of minutes for phi calculation in the Criticality analysis");
                 System.out.println("The -threads flag should be followed by an integer indicating the number of threads to use in the phi calculation");
+                System.out.println("The -budget flag should be followed by an integer indicating the spending budget for the attack analysis");
+                System.out.println("The -simuations flag should be followed by an integer indicating the number of simulations to run the attack analysis");
                 System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------");
                 System.out.println("The -lite flag tells THOR to use lite option defaults");
                 System.out.println("The -group flag tells THOR that the criticality output should group nodes which have similar criticality values");
@@ -174,7 +174,7 @@ public class Main {
                         double maxMinutes = 5;
 
                         if (calculationMethod == PhiCalculationEnum.RANDOM || calculationMethod == PhiCalculationEnum.FDNA) {
-                            maxMinutes = getDoubleArgAnswer(args, "-" + ConsoleArgument.MAX_MINUTES.name, 1);
+                            maxMinutes = getDoubleArgAnswer(args, "-" + ConsoleArgument.MAX_MINUTES.name, 5);
                         }else if(getArgAnswer(args, "-" + ConsoleArgument.MAX_MINUTES.name) == null){
                             System.out.println("Cannot set the max minutes for Criticality when not using the random or fdna calculation methods");
                         }
@@ -205,6 +205,16 @@ public class Main {
 
                         CGAnalysis cg = new CGAnalysis(rollUpEnums3, orderingMethod, grouping, saveImg, ColorSet.COLOR_SET1, targetType);
                         analyses.add(cg);
+                    }
+                    case "attack" -> {
+                        System.out.println("Analysis: Attack");
+                        ArrayList<RollUpEnum> rollUpEnums4 = new ArrayList<>();
+                        rollUpEnums4.add(rollUpRule);
+                        int budget = getIntArgAnswer(args, "-" + ConsoleArgument.BUDGET, 200);
+                        int simulations = getIntArgAnswer(args, "-" + ConsoleArgument.SIMULATIONS, 100000);
+                        AttackAnalysis attackAnalysis = new AttackAnalysis(rollUpEnums4, simulations, true,
+                                budget, DecisionOption.IMPACT, true, true);
+                        analyses.add(attackAnalysis);
                     }
                     default -> {
                         System.out.println("The analysis [" + analysisString  + "] is invalid");

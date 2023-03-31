@@ -15,6 +15,7 @@ import org.mitre.thor.network.loops.TDeLoop;
 import org.mitre.thor.network.nodes.Activity;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -67,30 +68,30 @@ public class StandardInput extends Input {
 
         correcter.findDependenciesErrors();
 
-        super.usesFDNA = false; super.usesODINN = false;
-        if(iConfig.checkNSP){
-            if(correcter.errors.isEmpty()){
-                List<String> rules = findRollUpRulesUsedInDependencies();
-                for(String rule: rules){
-                    if(rule.toLowerCase().contains("fdna")){
-                        usesFDNA = true;
-                    }
-                    if(rule.toLowerCase().contains("odinn") || rule.toLowerCase().contains("soda")){
-                        usesODINN = true;
-                    }
-                    if(usesODINN && usesFDNA){
-                        break;
-                    }
+        if(correcter.errors.isEmpty()){
+            List<String> rules = findRollUpRulesUsedInDependencies();
+            for(String rule: rules){
+                if(rule.toLowerCase().contains("fdna")){
+                    usesFDNA = true;
                 }
+                if(rule.toLowerCase().contains("odinn") || rule.toLowerCase().contains("soda")){
+                    usesODINN = true;
+                }
+                if(usesODINN && usesFDNA){
+                    break;
+                }
+            }
 
-                readNodeSpecificRollUpRules();
-
-            }else{
+            if(iConfig.checkNSP){readNodeSpecificRollUpRules();}
+        }else{
+            if(iConfig.checkNSP){
                 app.GAE("Errors were found in the 'Dependencies sheet' in the loaded Excel XSSF Workbook", true);
                 correcter.printErrors(false);
                 return false;
             }
         }
+
+        super.usesFDNA = false; super.usesODINN = false;
 
         if(iConfig.checkFDNA){
             usesFDNA = true;
@@ -147,6 +148,7 @@ public class StandardInput extends Input {
                 super.readAttackTree();
             } else {
                 correcter.printErrors(true);
+                return false;
             }
         }
 

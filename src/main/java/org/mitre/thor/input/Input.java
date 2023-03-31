@@ -13,6 +13,7 @@ import org.mitre.thor.network.*;
 import org.mitre.thor.analyses.cg.ColorSet;
 import org.mitre.thor.network.attack.DecisionTree;
 import org.mitre.thor.network.attack.Decision;
+import org.mitre.thor.network.attack.RequirementsRule;
 import org.mitre.thor.network.attack.Route;
 import org.mitre.thor.network.nodes.Activity;
 import org.mitre.thor.network.nodes.Factor;
@@ -481,6 +482,7 @@ public abstract class Input {
 
             int aColumn = -1;
             int bColumn = -1;
+            int offChanceColumn = -1;
             boolean usingNodeNames = true;
             int headerRowSize = headerRow.getLastCellNum();
             for(int i = 0; i < headerRowSize; i++){
@@ -491,6 +493,8 @@ public abstract class Input {
                 }
                 if(i == 0 && headerCell.getStringCellValue().toLowerCase().contains("id")){
                     usingNodeNames = false;
+                } else if (headerCell.getStringCellValue().toLowerCase().contains("off")){
+                    offChanceColumn = i;
                 }
             }
 
@@ -505,14 +509,22 @@ public abstract class Input {
                 if(bColumn != -1){
                     bCell = row.getCell(bColumn);
                 }
+                XSSFCell offChanceCell = null;
+                if (offChanceColumn !=  -1){
+                    offChanceCell = row.getCell(offChanceColumn);
+                }
 
                 double a = 1;
                 double b = -.5;
+                double offChance = .5;
                 if(aCell != null){
                     a = aCell.getNumericCellValue();
                 }
                 if(bCell != null){
                     b = bCell.getNumericCellValue();
+                }
+                if (offChanceCell != null){
+                    offChance = offChanceCell.getNumericCellValue();
                 }
 
                 Activity n = null;
@@ -525,6 +537,7 @@ public abstract class Input {
                 if(n != null){
                     n.A = a;
                     n.B = b;
+                    n.offChance = offChance;
                 }
             }
         }
@@ -716,16 +729,29 @@ public abstract class Input {
             for(int i = 0; i < numOfRow; i++){
                 XSSFRow iRow = decisionSheet.getRow(i + 1);
                 XSSFCell idCell = iRow.getCell(0);
-                XSSFCell requirementCell = iRow.getCell(1);
-                XSSFCell costCell = iRow.getCell(2);
-                XSSFCell descriptionCell = iRow.getCell(3);
+                XSSFCell requirementsCell = iRow.getCell(1);
+                XSSFCell requirementsRule = iRow.getCell(2);
+                XSSFCell costCell = iRow.getCell(3);
+                XSSFCell descriptionCell = iRow.getCell(4);
 
                 int id = (int) idCell.getNumericCellValue();
-                String requirement = requirementCell != null ? requirementCell.toString() : "";
+                String requirementString = requirementsCell != null ? requirementsCell.toString() : "";
+                String[] requirements = requirementString.split(",");
+                ArrayList<String> finalRequirements = new ArrayList<>();
+                for (String s : requirements) {
+                    String rq = s.strip();
+                    if (!rq.isEmpty() && !rq.isBlank()) finalRequirements.add(s.strip());
+                }
+                String reqRuleString = requirementsRule != null ? requirementsRule.toString() : "";
                 double cost = costCell.getNumericCellValue();
                 String description = descriptionCell !=  null ? descriptionCell.toString() : "";
 
-                decisionTree.addDecision(new Decision(id, requirement, cost, description));
+                RequirementsRule reqRule = switch (reqRuleString.toLowerCase()) {
+                    case "and" -> RequirementsRule.AND;
+                    default -> RequirementsRule.OR;
+                };
+
+                decisionTree.addDecision(new Decision(id, finalRequirements, reqRule, cost, description));
             }
         }
 

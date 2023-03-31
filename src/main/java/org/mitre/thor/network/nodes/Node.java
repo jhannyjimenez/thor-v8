@@ -24,6 +24,8 @@ public class Node implements Cloneable{
 
     public double fdna2Value = Double.NaN;
 
+    public double offChance = 0.5;
+
     public String mathematicaColor = null;
     public String mathematicaSize = null;
     public int decorativeID = -1;

@@ -15,12 +15,12 @@ class RandomPossibilities extends CalculationMethod{
 
     @Override
     protected void setNetworkStatus(Network network, ArrayList<Node> nodes, PhiRunnable phiRunnable, BigInteger index) {
-        double chance = .5;
         //50 percent chance that each node is turned on or off
         for(Node node : nodes){
             double choice = Math.random();
-            //turn the node on if the choice is less than chance
-            node.setOn(choice < chance);
+            //turn the node off if the choice is less than chance
+            boolean less = choice <  node.offChance;
+            node.setOn(!less);
         }
     }
 }

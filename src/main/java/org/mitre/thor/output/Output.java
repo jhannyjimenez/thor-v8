@@ -94,13 +94,21 @@ public abstract class Output {
 
         analyzeInput();
         writeOutput();
-        try {
-            fos = new FileOutputStream(input.iConfig.filePath);
-            CoreLogger.logger.log(Level.INFO, "Successfully created the File Output Stream");
-        }catch (Exception e){
-            e.printStackTrace();
-            input.app.GAE("The file could not be written because it does not exist or it is being used by another process", true);
+        boolean successWrite = false;
+        while (!successWrite) {
+            try {
+                fos = new FileOutputStream(input.iConfig.filePath);
+                CoreLogger.logger.log(Level.INFO, "Successfully created the File Output Stream");
+                successWrite = true;
+            }catch (Exception e){
+                input.app.controller.askQuestion("The input is being used by another process (likely Excel)\nClose the process then press 'yes'");
+                if (!input.app.controller.questionAnswer) {
+                    successWrite = true;
+                    input.app.GAE("The file could not be written because it does not exist or it is being used by another process", true);
+                }
+            }
         }
+
 
         try {
             input.workbook.write(fos);
